@@ -14,19 +14,15 @@ const filmsListElements = (container) => {
   return {listElement, titleElement, containerElement};
 };
 
-const renderFilmCardsTemplate = (container, count) => {
-  for (let i = 0; i < count; i++) {
-    renderTemplate(container, createFilmCardTemplate());
-  }
-};
-
 const renderFilmsListTemplate = (container, title, count) => {
   renderTemplate(container, createFilmsListTemplate());
   const {titleElement, containerElement} = filmsListElements(container);
 
   titleElement.innerHTML = title;
 
-  renderFilmCardsTemplate(containerElement, count);
+  for (let i = 0; i < count; i++) {
+    renderTemplate(containerElement, createFilmCardTemplate());
+  }
 };
 
 export const renderSimpleFilmsListTemplate = (container, title) => {
