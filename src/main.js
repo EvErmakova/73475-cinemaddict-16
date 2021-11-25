@@ -25,6 +25,14 @@ renderTemplate(siteMainElement, createFilmsTemplate());
 
 const filmsElement = siteMainElement.querySelector('.films');
 
+const filmsListElements = () => {
+  const listElement = filmsElement.querySelector('.films-list:last-of-type');
+  const titleElement = listElement.querySelector('.films-list__title');
+  const containerElement = listElement.querySelector('.films-list__container');
+
+  return {listElement, titleElement, containerElement};
+};
+
 const renderFilmCardsTemplate = (container, count) => {
   for (let i = 0; i < count; i++) {
     renderTemplate(container, createFilmCardTemplate());
@@ -33,10 +41,7 @@ const renderFilmCardsTemplate = (container, count) => {
 
 const renderSimpleFilmsListTemplate = (title) => {
   renderTemplate(filmsElement, createFilmsListTemplate());
-
-  const listElement = filmsElement.querySelector('.films-list:last-of-type');
-  const titleElement = listElement.querySelector('.films-list__title');
-  const containerElement = listElement.querySelector('.films-list__container');
+  const {listElement, titleElement, containerElement} = filmsListElements();
 
   titleElement.classList.add('visually-hidden');
   titleElement.innerHTML = title;
@@ -47,10 +52,7 @@ const renderSimpleFilmsListTemplate = (title) => {
 
 const renderExtraFilmsListTemplate = (title) => {
   renderTemplate(filmsElement, createFilmsListTemplate());
-
-  const listElement = filmsElement.querySelector('.films-list:last-of-type');
-  const titleElement = listElement.querySelector('.films-list__title');
-  const containerElement = listElement.querySelector('.films-list__container');
+  const {listElement, titleElement, containerElement} = filmsListElements();
 
   listElement.classList.add('films-list--extra');
   titleElement.innerHTML = title;
