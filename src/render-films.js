@@ -6,7 +6,7 @@ import {createMoreButtonTemplate} from './view/more-button-view';
 const FILM_COUNT = 5;
 const EXTRA_FILM_COUNT = 2;
 
-const filmsListElements = (container) => {
+const getFilmsListElements = (container) => {
   const listElement = container.querySelector('.films-list:last-of-type');
   const titleElement = listElement.querySelector('.films-list__title');
   const containerElement = listElement.querySelector('.films-list__container');
@@ -16,7 +16,7 @@ const filmsListElements = (container) => {
 
 const renderFilmsListTemplate = (container, title, count) => {
   renderTemplate(container, createFilmsListTemplate());
-  const {titleElement, containerElement} = filmsListElements(container);
+  const {titleElement, containerElement} = getFilmsListElements(container);
 
   titleElement.innerHTML = title;
 
@@ -27,7 +27,7 @@ const renderFilmsListTemplate = (container, title, count) => {
 
 export const renderSimpleFilmsListTemplate = (container, title) => {
   renderFilmsListTemplate(container, title, FILM_COUNT);
-  const {listElement, titleElement} = filmsListElements(container);
+  const {listElement, titleElement} = getFilmsListElements(container);
 
   titleElement.classList.add('visually-hidden');
   renderTemplate(listElement, createMoreButtonTemplate());
@@ -35,7 +35,7 @@ export const renderSimpleFilmsListTemplate = (container, title) => {
 
 export const renderExtraFilmsListTemplate = (container, title) => {
   renderFilmsListTemplate(container, title, EXTRA_FILM_COUNT);
-  const {listElement} = filmsListElements(container);
+  const {listElement} = getFilmsListElements(container);
 
   listElement.classList.add('films-list--extra');
 };
