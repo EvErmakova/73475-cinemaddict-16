@@ -5,7 +5,12 @@ import {createProfileTemplate} from './view/profile-view';
 import {createSortTemplate} from './view/sort-view';
 import {renderTemplate, RenderPosition} from './render';
 import {createFilmsTemplate} from './view/films-view';
-import {renderExtraFilmsListTemplate, renderSimpleFilmsListTemplate} from './render-films';
+import {createFilmsListTemplate} from './view/films-list-view';
+import {createFilmCardTemplate} from './view/film-card-view';
+import {createMoreButtonTemplate} from './view/more-button-view';
+
+const FILM_COUNT = 5;
+const EXTRA_FILM_COUNT = 2;
 
 const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
@@ -20,9 +25,39 @@ renderTemplate(siteMainElement, createFilmsTemplate());
 
 const filmsElement = siteMainElement.querySelector('.films');
 
-renderSimpleFilmsListTemplate(filmsElement, 'All movies. Upcoming');
-renderExtraFilmsListTemplate(filmsElement, 'Top rated');
-renderExtraFilmsListTemplate(filmsElement, 'Most commented');
+const renderFilms = (title, count) => {
+  renderTemplate(filmsElement, createFilmsListTemplate());
+
+  const listElement = filmsElement.querySelector('.films-list:last-of-type');
+  const titleElement = listElement.querySelector('.films-list__title');
+  const containerElement = listElement.querySelector('.films-list__container');
+
+  titleElement.innerHTML = title;
+
+  for (let i = 0; i < count; i++) {
+    renderTemplate(containerElement, createFilmCardTemplate());
+  }
+
+  return {listElement, titleElement, containerElement};
+};
+
+const {
+  titleElement: simpleFilmsTitleElement,
+  listElement: simpleFilmsListElement
+} = renderFilms('All movies. Upcoming', FILM_COUNT);
+
+simpleFilmsTitleElement.classList.add('visually-hidden');
+renderTemplate(simpleFilmsListElement, createMoreButtonTemplate());
+
+const {
+  listElement: topFilmsListElement
+} = renderFilms('Top rated', EXTRA_FILM_COUNT);
+topFilmsListElement.classList.add('films-list--extra');
+
+const {
+  listElement: mostCommentedFilmsListElement
+} = renderFilms('Most commented', EXTRA_FILM_COUNT);
+mostCommentedFilmsListElement.classList.add('films-list--extra');
 
 renderTemplate(footerStatisticsElement, createFilmDetailsTemplate(), RenderPosition.AFTEREND);
 
