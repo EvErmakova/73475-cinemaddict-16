@@ -20,3 +20,21 @@ export const getRandomDate = (minDateGap, maxDateGap) => {
 
   return dayjs().add(dateGap, 'year').toDate();
 };
+
+export const getFormattedTime = (time) => {
+  let duration = '';
+  let hours = 0;
+  let minutes = time;
+
+  if (minutes >= 60) {
+    hours = Math.floor(minutes / 60);
+    minutes = minutes % 60;
+    duration += `${hours}h `;
+  }
+
+  if (minutes > 0) {
+    duration += `${minutes}m`;
+  }
+
+  return duration.trim();
+};
