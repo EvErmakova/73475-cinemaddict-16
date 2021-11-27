@@ -1,4 +1,4 @@
-import {getRandomArrayItem, getRandomDate, getRandomInteger} from '../services/utils';
+import {getRandomArrayItem, getRandomDate} from '../services/utils';
 import {COMMENTS_COUNT, emotions} from '../services/constants';
 
 const authors = [
@@ -15,10 +15,17 @@ const comments = [
   'Almost two hours? Seriously?'
 ];
 
-export const generateComment = () => ({
-  id: getRandomInteger(1, COMMENTS_COUNT),
-  author: getRandomArrayItem(authors),
-  comment: getRandomArrayItem(comments),
-  date: getRandomDate(2, 1),
-  emotion: getRandomArrayItem(emotions)
-});
+let index = 1;
+
+export const generateComment = () => {
+  const commentData = {
+    id: index.toString(),
+    author: getRandomArrayItem(authors),
+    comment: getRandomArrayItem(comments),
+    date: getRandomDate(2, 1),
+    emotion: getRandomArrayItem(emotions)
+  };
+
+  index++;
+  return commentData;
+};

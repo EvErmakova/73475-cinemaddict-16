@@ -1,12 +1,17 @@
 import dayjs from 'dayjs';
 import {getFormattedTime} from '../services/utils';
 
-export const createFilmCardTemplate = (film) => {
-  const {title, totalRating, date, runtime, genre, poster, description} = film.filmInfo;
-  const comments = film.comments;
-  const {isWatchlist, isAlreadyWatched, isFavorite} = film.userDetails;
+const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
 
-  const releaseYear = dayjs(date).format('YYYY');
+export const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
+  const {title, totalRating, release, runtime, genre, poster, description} = filmInfo;
+  const commentsQuantity = comments.length;
+
+  const watchlistClassName = userDetails.watchlist ? CONTROL_ACTIVE_CLASS : '';
+  const watchedClassName = userDetails.alreadyWatched ? CONTROL_ACTIVE_CLASS : '';
+  const favoriteClassName = userDetails.favorite ? CONTROL_ACTIVE_CLASS : '';
+
+  const releaseYear = dayjs(release.date).format('YYYY');
 
   const getShortDescription = () => {
     if (description.length > 140) {
@@ -14,10 +19,6 @@ export const createFilmCardTemplate = (film) => {
     }
     return description;
   };
-
-  const watchlistClassName = isWatchlist ? 'film-card__controls-item--active' : '';
-  const watchedClassName = isAlreadyWatched ? 'film-card__controls-item--active' : '';
-  const favoriteClassName = isFavorite ? 'film-card__controls-item--active' : '';
 
   return `<article class="film-card">
     <a class="film-card__link">
@@ -30,7 +31,7 @@ export const createFilmCardTemplate = (film) => {
       </p>
       <img src="${poster}" alt="" class="film-card__poster">
       <p class="film-card__description">${getShortDescription()}</p>
-      <span class="film-card__comments">${comments.length} comments</span>
+      <span class="film-card__comments">${commentsQuantity} comments</span>
     </a>
     <div class="film-card__controls">
       <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${watchlistClassName}" type="button">Add to watchlist</button>

@@ -1,5 +1,5 @@
 import {getRandomArrayItem, getRandomBoolean, getRandomDate, getRandomInteger} from '../services/utils';
-import {COMMENTS_COUNT, FILMS_COUNT} from '../services/constants';
+import {COMMENTS_COUNT} from '../services/constants';
 
 const MIN_DESCRIPTION_COUNT = 1;
 const MAX_DESCRIPTION_COUNT = 5;
@@ -102,36 +102,43 @@ const generateCommentsId = () => {
   const randomCount = getRandomInteger(MIN_COMMENT_COUNT, MAX_COMMENT_COUNT);
 
   for (let i = 0; i < randomCount; i++) {
-    commentsId.push(getRandomInteger(1, COMMENTS_COUNT));
+    commentsId.push(getRandomInteger(1, COMMENTS_COUNT).toString());
   }
 
   return commentsId;
 };
 
-export const generateFilm = () => ({
-  id: getRandomInteger(1, FILMS_COUNT),
-  filmInfo: {
-    title: getRandomArrayItem(titles),
-    alternativeTitle: getRandomArrayItem(titles),
-    totalRating: getRandomInteger(1, 10),
-    poster: getRandomArrayItem(posters),
-    ageRating: getRandomInteger(0, 21),
-    director: generatePersons(1),
-    writers: generatePersons(getRandomInteger(1, 3)),
-    actors: generatePersons(getRandomInteger(1, 5)),
-    release: {
-      date: getRandomDate(30, 1),
-      releaseCountry: getRandomArrayItem(countries)
+let index = 1;
+
+export const generateFilm = () => {
+  const filmData = {
+    id: index.toString(),
+    filmInfo: {
+      title: getRandomArrayItem(titles),
+      alternativeTitle: getRandomArrayItem(titles),
+      totalRating: getRandomInteger(1, 10),
+      poster: getRandomArrayItem(posters),
+      ageRating: getRandomInteger(0, 21),
+      director: generatePersons(1),
+      writers: generatePersons(getRandomInteger(1, 3)),
+      actors: generatePersons(getRandomInteger(1, 5)),
+      release: {
+        date: getRandomDate(30, 1),
+        releaseCountry: getRandomArrayItem(countries)
+      },
+      runtime: getRandomInteger(30, 180),
+      genre: generateGenre(),
+      description: generateDescription()
     },
-    runtime: getRandomInteger(30, 180),
-    genre: generateGenre(),
-    description: generateDescription()
-  },
-  userDetails: {
-    watchlist: getRandomBoolean(),
-    alreadyWatched: getRandomBoolean(),
-    watchingDate: getRandomDate(5, 1),
-    favorite: getRandomBoolean()
-  },
-  comments: generateCommentsId()
-});
+    userDetails: {
+      watchlist: getRandomBoolean(),
+      alreadyWatched: getRandomBoolean(),
+      watchingDate: getRandomDate(5, 1),
+      favorite: getRandomBoolean()
+    },
+    comments: generateCommentsId()
+  };
+
+  index++;
+  return filmData;
+};
