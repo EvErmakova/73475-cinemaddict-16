@@ -9,21 +9,16 @@ import {createFilmsListTemplate} from './view/films-list-view';
 import {createFilmCardTemplate} from './view/film-card-view';
 import {createMoreButtonTemplate} from './view/more-button-view';
 import {generateFilm} from './mock/film';
-import {COMMENTS_COUNT, FILMS_COUNT} from './services/constants';
+import {COMMENTS_COUNT, EXTRA_FILM_COUNT, FILMS_COUNT} from './services/constants';
 import {generateComment} from './mock/comment';
 import {generateFilter} from './mock/filter';
+import {getFilmsCount, getMostCommentedFilms, getTopRatedFilms} from './services/data';
 
 const FILM_COUNT_PER_STEP = 5;
-const EXTRA_FILM_COUNT = 2;
 
-const allFilms = Array.from({length: FILMS_COUNT}, generateFilm);
-const topRatedFilms = Array.from({length: EXTRA_FILM_COUNT}, generateFilm);
-const mostCommentedFilms = Array.from({length: EXTRA_FILM_COUNT}, generateFilm);
-
+const filmsData = Array.from({length: FILMS_COUNT}, generateFilm);
 const commentsData = Array.from({length: COMMENTS_COUNT}, generateComment);
-
-const filters = generateFilter(allFilms);
-const alreadyWatchedCount = filters.find((item) => item.name === 'history').count;
+const filters = generateFilter(filmsData);
 
 const getFilmComments = ({comments}) => (
   commentsData.filter((item) => comments.includes(item.id))
@@ -33,10 +28,10 @@ const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
-renderTemplate(siteHeaderElement, createProfileTemplate(alreadyWatchedCount));
+renderTemplate(siteHeaderElement, createProfileTemplate(getFilmsCount(filmsData).alreadyWatched));
 renderTemplate(siteMainElement, createMainNavigationTemplate(filters));
 renderTemplate(siteMainElement, createSortTemplate());
-renderTemplate(footerStatisticsElement, createFilmsCounterTemplate(allFilms.length));
+renderTemplate(footerStatisticsElement, createFilmsCounterTemplate(filmsData.length));
 
 renderTemplate(siteMainElement, createFilmsTemplate());
 
@@ -62,11 +57,11 @@ const {
   titleElement: simpleFilmsTitleElement,
   listElement: simpleFilmsListElement,
   containerElement: simpleFilmsContainerElement
-} = renderFilms('All movies. Upcoming', Math.min(allFilms.length, FILM_COUNT_PER_STEP), allFilms);
+} = renderFilms('All movies. Upcoming', Math.min(filmsData.length, FILM_COUNT_PER_STEP), filmsData);
 
 simpleFilmsTitleElement.classList.add('visually-hidden');
 
-if (allFilms.length > FILM_COUNT_PER_STEP) {
+if (filmsData.length > FILM_COUNT_PER_STEP) {
   let renderedFilmCount = FILM_COUNT_PER_STEP;
 
   renderTemplate(simpleFilmsListElement, createMoreButtonTemplate());
@@ -75,13 +70,13 @@ if (allFilms.length > FILM_COUNT_PER_STEP) {
 
   loadMoreButton.addEventListener('click', (event) => {
     event.preventDefault();
-    allFilms
+    filmsData
       .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
       .forEach((film) => renderTemplate(simpleFilmsContainerElement, createFilmCardTemplate(film)));
 
     renderedFilmCount += FILM_COUNT_PER_STEP;
 
-    if (renderedFilmCount >= allFilms.length) {
+    if (renderedFilmCount >= filmsData.length) {
       loadMoreButton.remove();
     }
   });
@@ -89,15 +84,15 @@ if (allFilms.length > FILM_COUNT_PER_STEP) {
 
 const {
   listElement: topFilmsListElement
-} = renderFilms('Top rated', EXTRA_FILM_COUNT, topRatedFilms);
+} = renderFilms('Top rated', EXTRA_FILM_COUNT, getTopRatedFilms(filmsData));
 topFilmsListElement.classList.add('films-list--extra');
 
 const {
   listElement: mostCommentedFilmsListElement
-} = renderFilms('Most commented', EXTRA_FILM_COUNT, mostCommentedFilms);
+} = renderFilms('Most commented', EXTRA_FILM_COUNT, getMostCommentedFilms(filmsData));
 mostCommentedFilmsListElement.classList.add('films-list--extra');
 
-renderTemplate(footerStatisticsElement, createFilmDetailsTemplate(allFilms[0], getFilmComments(allFilms[0])), RenderPosition.AFTEREND);
+renderTemplate(footerStatisticsElement, createFilmDetailsTemplate(filmsData[0], getFilmComments(filmsData[0])), RenderPosition.AFTEREND);
 
 const filmDetailsElement = document.querySelector('.film-details');
 filmDetailsElement.style.display = 'none';

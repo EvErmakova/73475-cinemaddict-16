@@ -1,7 +1,9 @@
+import {getFilmsCount} from '../services/data';
+
 const filmToFilterMap = {
-  watchlist: (films) => films.filter((film) => film.userDetails.watchlist).length,
-  history: (films) => films.filter((film) => film.userDetails.alreadyWatched).length,
-  favorites: (films) => films.filter((film) => film.userDetails.favorite).length
+  watchlist: (films) => getFilmsCount(films).watchList,
+  history: (films) => getFilmsCount(films).alreadyWatched,
+  favorites: (films) => getFilmsCount(films).favorite
 };
 
 export const generateFilter = (films) => Object.entries(filmToFilterMap).map(
