@@ -23,6 +23,7 @@ const mostCommentedFilms = Array.from({length: EXTRA_FILM_COUNT}, generateFilm);
 const commentsData = Array.from({length: COMMENTS_COUNT}, generateComment);
 
 const filters = generateFilter(allFilms);
+const alreadyWatchedCount = filters.find((item) => item.name === 'history').count;
 
 const getFilmComments = ({comments}) => (
   commentsData.filter((item) => comments.includes(item.id))
@@ -32,7 +33,7 @@ const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
-renderTemplate(siteHeaderElement, createProfileTemplate());
+renderTemplate(siteHeaderElement, createProfileTemplate(alreadyWatchedCount));
 renderTemplate(siteMainElement, createMainNavigationTemplate(filters));
 renderTemplate(siteMainElement, createSortTemplate());
 renderTemplate(footerStatisticsElement, createFilmsCounterTemplate(allFilms.length));
