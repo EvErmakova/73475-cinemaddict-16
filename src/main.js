@@ -13,7 +13,7 @@ import {COMMENTS_COUNT, FILMS_COUNT} from './services/constants';
 import {generateComment} from './mock/comment';
 import {generateFilter} from './mock/filter';
 
-const FILM_COUNT = 5;
+const FILM_COUNT_PER_STEP = 5;
 const EXTRA_FILM_COUNT = 2;
 
 const allFilms = Array.from({length: FILMS_COUNT}, generateFilm);
@@ -60,11 +60,32 @@ const renderFilms = (title, count, films) => {
 
 const {
   titleElement: simpleFilmsTitleElement,
-  listElement: simpleFilmsListElement
-} = renderFilms('All movies. Upcoming', FILM_COUNT, allFilms);
+  listElement: simpleFilmsListElement,
+  containerElement: simpleFilmsContainerElement
+} = renderFilms('All movies. Upcoming', Math.min(allFilms.length, FILM_COUNT_PER_STEP), allFilms);
 
 simpleFilmsTitleElement.classList.add('visually-hidden');
-renderTemplate(simpleFilmsListElement, createMoreButtonTemplate());
+
+if (allFilms.length > FILM_COUNT_PER_STEP) {
+  let renderedFilmCount = FILM_COUNT_PER_STEP;
+
+  renderTemplate(simpleFilmsListElement, createMoreButtonTemplate());
+
+  const loadMoreButton = simpleFilmsListElement.querySelector('.films-list__show-more');
+
+  loadMoreButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    allFilms
+      .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
+      .forEach((film) => renderTemplate(simpleFilmsContainerElement, createFilmCardTemplate(film)));
+
+    renderedFilmCount += FILM_COUNT_PER_STEP;
+
+    if (renderedFilmCount >= allFilms.length) {
+      loadMoreButton.remove();
+    }
+  });
+}
 
 const {
   listElement: topFilmsListElement

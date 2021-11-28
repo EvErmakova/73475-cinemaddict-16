@@ -1,6 +1,6 @@
 import {getDateYear, getFormatTime} from '../services/date';
 
-const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
+const CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';
 
 export const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
   const {title, totalRating, release, runtime, genre, poster, description} = filmInfo;
