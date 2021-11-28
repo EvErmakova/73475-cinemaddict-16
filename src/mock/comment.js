@@ -1,5 +1,5 @@
 import {getRandomArrayItem, getRandomDate} from '../services/utils';
-import {COMMENTS_COUNT, emotions} from '../services/constants';
+import {emotions} from '../services/constants';
 
 const authors = [
   'Tim Macoveev',

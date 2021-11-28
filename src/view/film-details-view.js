@@ -1,9 +1,8 @@
-import dayjs from 'dayjs';
-import {getFormattedTime} from '../services/utils';
 import {createFilmsGenreTemplate} from './film-genre-view';
 import {createFilmsCommentTemplate} from './film-comment';
 import {emotions} from '../services/constants';
 import {createEmojiItemTemplate} from './emoji-item-view';
+import {getFormatDate, getFormatTime} from '../services/date';
 
 const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
 
@@ -26,8 +25,6 @@ export const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}, com
   const watchlistClassName = userDetails.watchlist ? CONTROL_ACTIVE_CLASS : '';
   const watchedClassName = userDetails.alreadyWatched ? CONTROL_ACTIVE_CLASS : '';
   const favoriteClassName = userDetails.favorite ? CONTROL_ACTIVE_CLASS : '';
-
-  const releaseDate = dayjs(release.date).format('D MMMM YYYY');
 
   const genres = genre.map(createFilmsGenreTemplate).join('');
 
@@ -75,11 +72,11 @@ export const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}, com
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${releaseDate}</td>
+                <td class="film-details__cell">${getFormatDate(release.date)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${getFormattedTime(runtime)}</td>
+                <td class="film-details__cell">${getFormatTime(runtime)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
