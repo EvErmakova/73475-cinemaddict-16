@@ -1,5 +1,5 @@
 import {getRandomArrayItem, getRandomDate} from '../services/utils';
-import {emotions} from '../services/constants';
+import {EMOTIONS} from '../services/constants';
 
 const authors = [
   'Tim Macoveev',
@@ -23,7 +23,7 @@ export const generateComment = () => {
     author: getRandomArrayItem(authors),
     comment: getRandomArrayItem(comments),
     date: getRandomDate(2, 1),
-    emotion: getRandomArrayItem(emotions)
+    emotion: getRandomArrayItem(EMOTIONS)
   };
 
   index++;

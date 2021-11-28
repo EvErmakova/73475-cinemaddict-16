@@ -1,6 +1,6 @@
 import {createFilmsGenreTemplate} from './film-genre-view';
 import {createFilmsCommentTemplate} from './film-comment';
-import {emotions} from '../services/constants';
+import {EMOTIONS} from '../services/constants';
 import {createEmojiItemTemplate} from './emoji-item-view';
 import {getFormatDate, getFormatTime} from '../services/date';
 
@@ -30,7 +30,7 @@ export const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}, com
 
   const commentsQuantity = comments.length;
   const commentsList = commentsQuantity ? commentsData.map(createFilmsCommentTemplate).join('\n') : '';
-  const emojiList = emotions.map(createEmojiItemTemplate).join('\n');
+  const emojiList = EMOTIONS.map(createEmojiItemTemplate).join('\n');
 
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
