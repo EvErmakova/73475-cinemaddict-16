@@ -11,6 +11,7 @@ import {createMoreButtonTemplate} from './view/more-button-view';
 import {generateFilm} from './mock/film';
 import {COMMENTS_COUNT, FILMS_COUNT} from './services/constants';
 import {generateComment} from './mock/comment';
+import {generateFilter} from './mock/filter';
 
 const FILM_COUNT = 5;
 const EXTRA_FILM_COUNT = 2;
@@ -21,6 +22,8 @@ const mostCommentedFilms = Array.from({length: EXTRA_FILM_COUNT}, generateFilm);
 
 const commentsData = Array.from({length: COMMENTS_COUNT}, generateComment);
 
+const filters = generateFilter(allFilms);
+
 const getFilmComments = ({comments}) => (
   commentsData.filter((item) => comments.includes(item.id))
 );
@@ -30,7 +33,7 @@ const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
 renderTemplate(siteHeaderElement, createProfileTemplate());
-renderTemplate(siteMainElement, createMainNavigationTemplate());
+renderTemplate(siteMainElement, createMainNavigationTemplate(filters));
 renderTemplate(siteMainElement, createSortTemplate());
 renderTemplate(footerStatisticsElement, createFilmsCounterTemplate(allFilms.length));
 
