@@ -15,5 +15,5 @@ export const createMainNavigationTemplate = (filters) => {
       ${navigationItems}
     </div>
     <a href="#stats" class="main-navigation__additional">Stats</a>
-  </nav>`
+  </nav>`;
 };
