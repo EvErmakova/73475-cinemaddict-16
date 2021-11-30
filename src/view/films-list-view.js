@@ -1,4 +1,6 @@
-export const createFilmsListTemplate = () => (
+import {createElement} from '../render';
+
+const createFilmsListTemplate = () => (
   `<section class="films-list">
     <h2 class="films-list__title"></h2>
 
@@ -6,3 +8,23 @@ export const createFilmsListTemplate = () => (
     </div>
   </section>`
 );
+
+export default class FilmsListView {
+  #element = null;
+
+  get template() {
+    return createFilmsListTemplate();
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}

@@ -1,3 +1,5 @@
+import {createElement} from '../render';
+
 const createMainNavigationItemTemplate = ({name, count}) => {
   const title = name[0].toUpperCase() + name.slice(1);
 
@@ -6,7 +8,7 @@ const createMainNavigationItemTemplate = ({name, count}) => {
   </a>`;
 };
 
-export const createMainNavigationTemplate = (filters) => {
+const createMainNavigationTemplate = (filters) => {
   const navigationItems = filters.map(createMainNavigationItemTemplate).join('\n');
 
   return `<nav class="main-navigation">
@@ -17,3 +19,28 @@ export const createMainNavigationTemplate = (filters) => {
     <a href="#stats" class="main-navigation__additional">Stats</a>
   </nav>`;
 };
+
+export default class MainNavigationView {
+  #element = null;
+  #filters = null;
+
+  constructor(filters) {
+    this.#filters = filters;
+  }
+
+  get template() {
+    return createMainNavigationTemplate(this.#filters);
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
