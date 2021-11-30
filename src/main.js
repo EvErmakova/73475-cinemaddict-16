@@ -1,18 +1,18 @@
+import {COMMENTS_COUNT, EXTRA_FILM_COUNT, FILMS_COUNT} from './services/constants';
+import {getFilmsCount, getMostCommentedFilms, getTopRatedFilms} from './services/data';
+import {renderTemplate, RenderPosition} from './render';
 import {createFilmDetailsTemplate} from './view/film-details-view';
 import {createFilmsCounterTemplate} from './view/films-counter-view';
 import {createMainNavigationTemplate} from './view/main-navigation-view';
 import {createProfileTemplate} from './view/profile-view';
 import {createSortTemplate} from './view/sort-view';
-import {renderTemplate, RenderPosition} from './render';
 import {createFilmsTemplate} from './view/films-view';
 import {createFilmsListTemplate} from './view/films-list-view';
 import {createFilmCardTemplate} from './view/film-card-view';
 import {createMoreButtonTemplate} from './view/more-button-view';
 import {generateFilm} from './mock/film';
-import {COMMENTS_COUNT, EXTRA_FILM_COUNT, FILMS_COUNT} from './services/constants';
 import {generateComment} from './mock/comment';
 import {generateFilter} from './mock/filter';
-import {getFilmsCount, getMostCommentedFilms, getTopRatedFilms} from './services/data';
 
 const FILM_COUNT_PER_STEP = 5;
 

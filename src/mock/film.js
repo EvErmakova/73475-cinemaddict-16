@@ -1,10 +1,15 @@
 import {getRandomArrayItem, getRandomBoolean, getRandomDate, getRandomInteger} from '../services/utils';
 import {COMMENTS_COUNT} from '../services/constants';
 
-const MIN_DESCRIPTION_COUNT = 1;
-const MAX_DESCRIPTION_COUNT = 5;
-const MIN_COMMENT_COUNT = 0;
-const MAX_COMMENT_COUNT = 5;
+const Description = {
+  MIN_COUNT: 1,
+  MAX_COUNT: 5
+};
+
+const Comment = {
+  MIN_COUNT: 0,
+  MAX_COUNT: 5
+};
 
 const posters = [
   './images/posters/made-for-each-other.png',
@@ -86,7 +91,7 @@ const generateDescription = () => {
     'Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus.',
     'In rutrum ac purus sit amet tempus.'
   ];
-  const randomCount = getRandomInteger(MIN_DESCRIPTION_COUNT, MAX_DESCRIPTION_COUNT);
+  const randomCount = getRandomInteger(Description.MIN_COUNT, Description.MAX_COUNT);
 
   const description = [];
   for (let i = 0; i < randomCount; i++) {
@@ -99,7 +104,7 @@ const generateDescription = () => {
 
 const generateCommentsId = () => {
   const commentsId = [];
-  const randomCount = getRandomInteger(MIN_COMMENT_COUNT, MAX_COMMENT_COUNT);
+  const randomCount = getRandomInteger(Comment.MIN_COUNT, Comment.MAX_COUNT);
 
   for (let i = 0; i < randomCount; i++) {
     commentsId.push(getRandomInteger(1, COMMENTS_COUNT).toString());
