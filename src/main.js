@@ -1,6 +1,6 @@
 import {COMMENTS_COUNT, EXTRA_FILM_COUNT, FILMS_COUNT} from './services/constants';
 import {getFilmsCount, getMostCommentedFilms, getTopRatedFilms} from './services/data';
-import {RenderPosition, renderElement} from './render';
+import {render} from './render';
 import {generateFilm} from './mock/film';
 import {generateComment} from './mock/comment';
 import {generateFilter} from './mock/filter';
@@ -32,13 +32,13 @@ const footerStatisticsElement = document.querySelector('.footer__statistics');
 
 const alreadyWatchedCount = getFilmsCount(filmsData).alreadyWatched;
 
-renderElement(siteHeaderElement, new ProfileView(alreadyWatchedCount).element);
-renderElement(siteMainElement, new MainNavigationView(filters).element);
-renderElement(siteMainElement, new SortView().element);
-renderElement(footerStatisticsElement, new FilmsCounterView(filmsData.length).element);
+render(siteHeaderElement, new ProfileView(alreadyWatchedCount).element);
+render(siteMainElement, new MainNavigationView(filters).element);
+render(siteMainElement, new SortView().element);
+render(footerStatisticsElement, new FilmsCounterView(filmsData.length).element);
 
 const filmsComponent = new FilmsView();
-renderElement(siteMainElement, filmsComponent.element);
+render(siteMainElement, filmsComponent.element);
 
 const renderFilm = (container, film) => {
   const filmCardElement = new FilmCardView(film).element;
@@ -51,7 +51,7 @@ const renderFilm = (container, film) => {
     const commentsListElement = filmDetailsElement.querySelector('.film-details__comments-list');
     for (let i = 0; i < film.comments.length; i++) {
       const comment = getFilmComments(film)[i];
-      renderElement(commentsListElement, new FilmComment(comment).element);
+      render(commentsListElement, new FilmComment(comment).element);
     }
   };
 
@@ -60,7 +60,7 @@ const renderFilm = (container, film) => {
     bodyElement.removeChild(filmDetailsElement);
   };
 
-  renderElement(container, filmCardElement);
+  render(container, filmCardElement);
 
   const filmCardLinkElement = filmCardElement.querySelector('.film-card__link');
   filmCardLinkElement.addEventListener('click', () => openFilmDetails());
@@ -71,7 +71,7 @@ const renderFilm = (container, film) => {
 
 const renderFilms = (title, count, films) => {
   const listElement = new FilmsListView().element;
-  renderElement(filmsComponent.element, listElement);
+  render(filmsComponent.element, listElement);
 
   const titleElement = listElement.querySelector('.films-list__title');
   const containerElement = listElement.querySelector('.films-list__container');
@@ -98,13 +98,13 @@ if (filmsData.length > FILM_COUNT_PER_STEP) {
   let renderedFilmCount = FILM_COUNT_PER_STEP;
 
   const moreButtonComponent = new MoreButtonView();
-  renderElement(simpleFilmsListElement, moreButtonComponent.element);
+  render(simpleFilmsListElement, moreButtonComponent.element);
 
   moreButtonComponent.element.addEventListener('click', (event) => {
     event.preventDefault();
     filmsData
       .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => renderElement(simpleFilmsContainerElement, new FilmCardView(film).element));
+      .forEach((film) => render(simpleFilmsContainerElement, new FilmCardView(film).element));
 
     renderedFilmCount += FILM_COUNT_PER_STEP;
 
