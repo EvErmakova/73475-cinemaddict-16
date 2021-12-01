@@ -1,4 +1,4 @@
-import {COMMENTS_COUNT, EXTRA_FILM_COUNT, FILMS_COUNT} from './services/constants';
+import {COMMENTS_COUNT, FILMS_COUNT} from './services/constants';
 import {getFilmsCount, getMostCommentedFilms, getTopRatedFilms} from './services/data';
 import {render} from './render';
 import {generateFilm} from './mock/film';
@@ -28,8 +28,6 @@ const bodyElement = document.body;
 const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
-
-const alreadyWatchedCount = getFilmsCount(filmsData).alreadyWatched;
 
 const renderFilm = (container, film) => {
   const filmCardElement = new FilmCardView(film).element;
@@ -74,85 +72,87 @@ const renderFilm = (container, film) => {
   });
 };
 
-const renderFilms = (filmsContainer, filmsList) => {
-  const filmsComponent = new FilmsView();
+const renderFilmsList = (container, title, films, count = films.length) => {
+  const listElement = new FilmsListView().element;
+  render(container, listElement);
 
-  const renderFilmsList = (title, count, films) => {
-    const listElement = new FilmsListView().element;
-    render(filmsComponent.element, listElement);
+  const titleElement = listElement.querySelector('.films-list__title');
+  const containerElement = listElement.querySelector('.films-list__container');
 
-    const titleElement = listElement.querySelector('.films-list__title');
-    const containerElement = listElement.querySelector('.films-list__container');
+  titleElement.innerHTML = title;
 
-    titleElement.innerHTML = title;
+  for (let i = 0; i < count; i++) {
+    const film = films[i];
+    renderFilm(containerElement, film);
+  }
 
-    for (let i = 0; i < count; i++) {
-      const film = films[i];
-      renderFilm(containerElement, film);
-    }
+  return {listElement, titleElement, containerElement};
+};
 
-    return {listElement, titleElement, containerElement};
-  };
+const renderSimpleFilmsList = (container, films) => {
+  const FILM_COUNT_PER_STEP = 5;
 
-  const renderSimpleFilmsList = (films) => {
-    const FILM_COUNT_PER_STEP = 5;
+  const {
+    titleElement: simpleFilmsTitleElement,
+    listElement: simpleFilmsListElement,
+    containerElement: simpleFilmsContainerElement
+  } = renderFilmsList(container, 'All movies. Upcoming', films, Math.min(films.length, FILM_COUNT_PER_STEP));
 
-    const {
-      titleElement: simpleFilmsTitleElement,
-      listElement: simpleFilmsListElement,
-      containerElement: simpleFilmsContainerElement
-    } = renderFilmsList('All movies. Upcoming', Math.min(films.length, FILM_COUNT_PER_STEP), films);
+  simpleFilmsTitleElement.classList.add('visually-hidden');
 
-    simpleFilmsTitleElement.classList.add('visually-hidden');
+  if (films.length > FILM_COUNT_PER_STEP) {
+    let renderedFilmCount = FILM_COUNT_PER_STEP;
 
-    if (films.length > FILM_COUNT_PER_STEP) {
-      let renderedFilmCount = FILM_COUNT_PER_STEP;
+    const moreButtonComponent = new MoreButtonView();
+    render(simpleFilmsListElement, moreButtonComponent.element);
 
-      const moreButtonComponent = new MoreButtonView();
-      render(simpleFilmsListElement, moreButtonComponent.element);
+    moreButtonComponent.element.addEventListener('click', (event) => {
+      event.preventDefault();
+      films
+        .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
+        .forEach((film) => renderFilm(simpleFilmsContainerElement, film));
 
-      moreButtonComponent.element.addEventListener('click', (event) => {
-        event.preventDefault();
-        films
-          .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
-          .forEach((film) => render(simpleFilmsContainerElement, new FilmCardView(film).element));
+      renderedFilmCount += FILM_COUNT_PER_STEP;
 
-        renderedFilmCount += FILM_COUNT_PER_STEP;
+      if (renderedFilmCount >= films.length) {
+        moreButtonComponent.element.remove();
+        moreButtonComponent.removeElement();
+      }
+    });
+  }
+};
 
-        if (renderedFilmCount >= films.length) {
-          moreButtonComponent.element.remove();
-          moreButtonComponent.removeElement();
-        }
-      });
-    }
-  };
+const renderFilms = (container, films) => {
+  const filmsElement = new FilmsView().element;
+  const alreadyWatchedCount = getFilmsCount(films).alreadyWatched;
 
-  if (!filmsList.length > 0) {
-    render(filmsContainer, filmsComponent.element);
-    render(filmsComponent.element, new NoFilmsView().element);
+  if (!films.length > 0) {
+    render(container, filmsElement);
+    render(filmsElement, new NoFilmsView().element);
     return;
   }
 
-  render(filmsContainer, new SortView().element);
-  render(filmsContainer, filmsComponent.element);
-  renderSimpleFilmsList(filmsList);
+  render(siteHeaderElement, new ProfileView(alreadyWatchedCount).element);
+  render(container, new SortView().element);
+  render(container, filmsElement);
 
-  if (filmsList.some((film) => film.filmInfo.totalRating > 0)) {
+  renderSimpleFilmsList(filmsElement, films);
+
+  if (films.some((film) => film.filmInfo.totalRating > 0)) {
     const {
       listElement: topFilmsListElement
-    } = renderFilmsList('Top rated', EXTRA_FILM_COUNT, getTopRatedFilms(filmsData));
+    } = renderFilmsList(filmsElement, 'Top rated', getTopRatedFilms(filmsData));
     topFilmsListElement.classList.add('films-list--extra');
   }
 
-  if (filmsList.some((film) => film.comments.length > 0)) {
+  if (films.some((film) => film.comments.length > 0)) {
     const {
       listElement: mostCommentedFilmsListElement
-    } = renderFilmsList('Most commented', EXTRA_FILM_COUNT, getMostCommentedFilms(filmsData));
+    } = renderFilmsList(filmsElement, 'Most commented', getMostCommentedFilms(filmsData));
     mostCommentedFilmsListElement.classList.add('films-list--extra');
   }
 };
 
-render(siteHeaderElement, new ProfileView(alreadyWatchedCount).element);
 render(siteMainElement, new MainNavigationView(filters).element);
 renderFilms(siteMainElement, filmsData);
 render(footerStatisticsElement, new FilmsCounterView(filmsData.length).element);
