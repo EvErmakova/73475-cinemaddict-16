@@ -51,13 +51,27 @@ const renderFilm = (container, film) => {
     bodyElement.removeChild(filmDetailsElement);
   };
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      closeFilmDetails();
+      document.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
   render(container, filmCardElement);
 
   const filmCardLinkElement = filmCardElement.querySelector('.film-card__link');
-  filmCardLinkElement.addEventListener('click', () => openFilmDetails());
+  filmCardLinkElement.addEventListener('click', () => {
+    openFilmDetails();
+    document.addEventListener('keydown', onEscKeyDown);
+  });
 
   const filmDetailsCloseButton = filmDetailsElement.querySelector('.film-details__close-btn');
-  filmDetailsCloseButton.addEventListener('click', () => closeFilmDetails());
+  filmDetailsCloseButton.addEventListener('click', () => {
+    closeFilmDetails();
+    document.removeEventListener('keydown', onEscKeyDown);
+  });
 };
 
 const renderFilms = (filmsContainer, filmsList) => {
