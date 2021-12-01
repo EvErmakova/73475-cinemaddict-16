@@ -18,7 +18,7 @@ const createFilmsCommentTemplate = (commentData) => {
   </li>`;
 };
 
-export default class FilmComment {
+export default class FilmCommentView {
   #element = null;
   #comment = null;
 

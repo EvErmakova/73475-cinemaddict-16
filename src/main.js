@@ -13,9 +13,8 @@ import FilmsListView from './view/films-list-view';
 import FilmCardView from './view/film-card-view';
 import MoreButtonView from './view/more-button-view';
 import FilmDetailsView from './view/film-details-view';
-import FilmComment from './view/film-comment';
-
-const FILM_COUNT_PER_STEP = 5;
+import FilmCommentView from './view/film-comment-view';
+import NoFilmsView from './view/no-films-view';
 
 const filmsData = Array.from({length: FILMS_COUNT}, generateFilm);
 const commentsData = Array.from({length: COMMENTS_COUNT}, generateComment);
@@ -32,14 +31,6 @@ const footerStatisticsElement = document.querySelector('.footer__statistics');
 
 const alreadyWatchedCount = getFilmsCount(filmsData).alreadyWatched;
 
-render(siteHeaderElement, new ProfileView(alreadyWatchedCount).element);
-render(siteMainElement, new MainNavigationView(filters).element);
-render(siteMainElement, new SortView().element);
-render(footerStatisticsElement, new FilmsCounterView(filmsData.length).element);
-
-const filmsComponent = new FilmsView();
-render(siteMainElement, filmsComponent.element);
-
 const renderFilm = (container, film) => {
   const filmCardElement = new FilmCardView(film).element;
   const filmDetailsElement = new FilmDetailsView(film).element;
@@ -51,7 +42,7 @@ const renderFilm = (container, film) => {
     const commentsListElement = filmDetailsElement.querySelector('.film-details__comments-list');
     for (let i = 0; i < film.comments.length; i++) {
       const comment = getFilmComments(film)[i];
-      render(commentsListElement, new FilmComment(comment).element);
+      render(commentsListElement, new FilmCommentView(comment).element);
     }
   };
 
@@ -69,58 +60,85 @@ const renderFilm = (container, film) => {
   filmDetailsCloseButton.addEventListener('click', () => closeFilmDetails());
 };
 
-const renderFilms = (title, count, films) => {
-  const listElement = new FilmsListView().element;
-  render(filmsComponent.element, listElement);
+const renderFilms = (filmsContainer, filmsList) => {
+  const filmsComponent = new FilmsView();
 
-  const titleElement = listElement.querySelector('.films-list__title');
-  const containerElement = listElement.querySelector('.films-list__container');
+  const renderFilmsList = (title, count, films) => {
+    const listElement = new FilmsListView().element;
+    render(filmsComponent.element, listElement);
 
-  titleElement.innerHTML = title;
+    const titleElement = listElement.querySelector('.films-list__title');
+    const containerElement = listElement.querySelector('.films-list__container');
 
-  for (let i = 0; i < count; i++) {
-    const film = films[i];
-    renderFilm(containerElement, film);
+    titleElement.innerHTML = title;
+
+    for (let i = 0; i < count; i++) {
+      const film = films[i];
+      renderFilm(containerElement, film);
+    }
+
+    return {listElement, titleElement, containerElement};
+  };
+
+  const renderSimpleFilmsList = (films) => {
+    const FILM_COUNT_PER_STEP = 5;
+
+    const {
+      titleElement: simpleFilmsTitleElement,
+      listElement: simpleFilmsListElement,
+      containerElement: simpleFilmsContainerElement
+    } = renderFilmsList('All movies. Upcoming', Math.min(films.length, FILM_COUNT_PER_STEP), films);
+
+    simpleFilmsTitleElement.classList.add('visually-hidden');
+
+    if (films.length > FILM_COUNT_PER_STEP) {
+      let renderedFilmCount = FILM_COUNT_PER_STEP;
+
+      const moreButtonComponent = new MoreButtonView();
+      render(simpleFilmsListElement, moreButtonComponent.element);
+
+      moreButtonComponent.element.addEventListener('click', (event) => {
+        event.preventDefault();
+        films
+          .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
+          .forEach((film) => render(simpleFilmsContainerElement, new FilmCardView(film).element));
+
+        renderedFilmCount += FILM_COUNT_PER_STEP;
+
+        if (renderedFilmCount >= films.length) {
+          moreButtonComponent.element.remove();
+          moreButtonComponent.removeElement();
+        }
+      });
+    }
+  };
+
+  if (!filmsList.length > 0) {
+    render(filmsContainer, filmsComponent.element);
+    render(filmsComponent.element, new NoFilmsView().element);
+    return;
   }
 
-  return {listElement, titleElement, containerElement};
+  render(filmsContainer, new SortView().element);
+  render(filmsContainer, filmsComponent.element);
+  renderSimpleFilmsList(filmsList);
+
+  if (filmsList.some((film) => film.filmInfo.totalRating > 0)) {
+    const {
+      listElement: topFilmsListElement
+    } = renderFilmsList('Top rated', EXTRA_FILM_COUNT, getTopRatedFilms(filmsData));
+    topFilmsListElement.classList.add('films-list--extra');
+  }
+
+  if (filmsList.some((film) => film.comments.length > 0)) {
+    const {
+      listElement: mostCommentedFilmsListElement
+    } = renderFilmsList('Most commented', EXTRA_FILM_COUNT, getMostCommentedFilms(filmsData));
+    mostCommentedFilmsListElement.classList.add('films-list--extra');
+  }
 };
 
-const {
-  titleElement: simpleFilmsTitleElement,
-  listElement: simpleFilmsListElement,
-  containerElement: simpleFilmsContainerElement
-} = renderFilms('All movies. Upcoming', Math.min(filmsData.length, FILM_COUNT_PER_STEP), filmsData);
-
-simpleFilmsTitleElement.classList.add('visually-hidden');
-
-if (filmsData.length > FILM_COUNT_PER_STEP) {
-  let renderedFilmCount = FILM_COUNT_PER_STEP;
-
-  const moreButtonComponent = new MoreButtonView();
-  render(simpleFilmsListElement, moreButtonComponent.element);
-
-  moreButtonComponent.element.addEventListener('click', (event) => {
-    event.preventDefault();
-    filmsData
-      .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => render(simpleFilmsContainerElement, new FilmCardView(film).element));
-
-    renderedFilmCount += FILM_COUNT_PER_STEP;
-
-    if (renderedFilmCount >= filmsData.length) {
-      moreButtonComponent.element.remove();
-      moreButtonComponent.removeElement();
-    }
-  });
-}
-
-const {
-  listElement: topFilmsListElement
-} = renderFilms('Top rated', EXTRA_FILM_COUNT, getTopRatedFilms(filmsData));
-topFilmsListElement.classList.add('films-list--extra');
-
-const {
-  listElement: mostCommentedFilmsListElement
-} = renderFilms('Most commented', EXTRA_FILM_COUNT, getMostCommentedFilms(filmsData));
-mostCommentedFilmsListElement.classList.add('films-list--extra');
+render(siteHeaderElement, new ProfileView(alreadyWatchedCount).element);
+render(siteMainElement, new MainNavigationView(filters).element);
+renderFilms(siteMainElement, filmsData);
+render(footerStatisticsElement, new FilmsCounterView(filmsData.length).element);

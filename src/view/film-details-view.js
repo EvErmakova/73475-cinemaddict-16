@@ -1,4 +1,3 @@
-import {createFilmsCommentTemplate} from './film-comment';
 import {EMOTIONS} from '../services/constants';
 import {getFormatDate, getFormatTime} from '../services/date';
 import {createElement} from '../render';
