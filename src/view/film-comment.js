@@ -1,7 +1,9 @@
 import {getTimeFromNow} from '../services/date';
+import {createElement} from '../render';
 
-export const createFilmsCommentTemplate = ({author, comment, date, emotion}) => (
-  `<li class="film-details__comment">
+const createFilmsCommentTemplate = (commentData) => {
+  const {author, comment, date, emotion} = commentData;
+  return `<li class="film-details__comment">
     <span class="film-details__comment-emoji">
       <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
     </span>
@@ -13,5 +15,30 @@ export const createFilmsCommentTemplate = ({author, comment, date, emotion}) => 
         <button class="film-details__comment-delete">Delete</button>
       </p>
     </div>
-  </li>`
-);
+  </li>`;
+};
+
+export default class FilmComment {
+  #element = null;
+  #comment = null;
+
+  constructor(comment) {
+    this.#comment = comment;
+  }
+
+  get template() {
+    return createFilmsCommentTemplate(this.#comment);
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
