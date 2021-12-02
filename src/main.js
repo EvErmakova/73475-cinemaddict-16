@@ -50,7 +50,7 @@ const renderFilm = (container, film) => {
   };
 
   const onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (evt.key === 'Esc' || evt.key === 'Escape') {
       evt.preventDefault();
       closeFilmDetails();
       document.removeEventListener('keydown', onEscKeyDown);
