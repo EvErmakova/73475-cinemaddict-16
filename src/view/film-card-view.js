@@ -3,8 +3,7 @@ import {createElement} from '../render';
 
 const CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';
 
-const createFilmCardTemplate = (film) => {
-  const {filmInfo, userDetails, comments} = film;
+const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
   const {title, totalRating, release, runtime, genre, poster, description} = filmInfo;
 
   const watchlistClassName = userDetails.watchlist ? CONTROL_ACTIVE_CLASS : '';
@@ -41,7 +40,7 @@ const createFilmCardTemplate = (film) => {
 
 export default class FilmCardView {
   #element = null;
-  #film = null;
+  #film = {};
 
   constructor(film) {
     this.#film = film;

@@ -15,8 +15,7 @@ const createEmojiItemTemplate = (emoji) => (
   </label>`
 );
 
-const createFilmDetailsTemplate = (film) => {
-  const {filmInfo, userDetails, comments} = film;
+const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}) => {
   const {
     poster,
     ageRating,
@@ -139,7 +138,7 @@ const createFilmDetailsTemplate = (film) => {
 
 export default class FilmDetailsView {
   #element = null;
-  #film = null;
+  #film = {};
 
   constructor(film) {
     this.#film = film;

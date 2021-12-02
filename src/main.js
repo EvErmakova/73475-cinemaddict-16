@@ -106,8 +106,8 @@ const renderSimpleFilmsList = (container, films) => {
     const moreButtonComponent = new MoreButtonView();
     render(simpleFilmsListElement, moreButtonComponent.element);
 
-    moreButtonComponent.element.addEventListener('click', (event) => {
-      event.preventDefault();
+    moreButtonComponent.element.addEventListener('click', (evt) => {
+      evt.preventDefault();
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
         .forEach((film) => renderFilm(simpleFilmsContainerElement, film));
@@ -126,7 +126,7 @@ const renderFilms = (container, films) => {
   const filmsElement = new FilmsView().element;
   const alreadyWatchedCount = getFilmsCount(films).alreadyWatched;
 
-  if (!films.length > 0) {
+  if (films.length === 0) {
     render(container, filmsElement);
     render(filmsElement, new NoFilmsView().element);
     return;
@@ -138,14 +138,14 @@ const renderFilms = (container, films) => {
 
   renderSimpleFilmsList(filmsElement, films);
 
-  if (films.some((film) => film.filmInfo.totalRating > 0)) {
+  if (films.some(({filmInfo}) => filmInfo.totalRating > 0)) {
     const {
       listElement: topFilmsListElement
     } = renderFilmsList(filmsElement, 'Top rated', getTopRatedFilms(filmsData));
     topFilmsListElement.classList.add('films-list--extra');
   }
 
-  if (films.some((film) => film.comments.length > 0)) {
+  if (films.some(({comments}) => comments.length > 0)) {
     const {
       listElement: mostCommentedFilmsListElement
     } = renderFilmsList(filmsElement, 'Most commented', getMostCommentedFilms(filmsData));
