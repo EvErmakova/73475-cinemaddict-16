@@ -1,8 +1,9 @@
 import {getDateYear, getFormatTime} from '../services/date';
+import {createElement} from '../render';
 
 const CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';
 
-export const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
+const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
   const {title, totalRating, release, runtime, genre, poster, description} = filmInfo;
 
   const watchlistClassName = userDetails.watchlist ? CONTROL_ACTIVE_CLASS : '';
@@ -36,3 +37,28 @@ export const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
     </div>
   </article>`;
 };
+
+export default class FilmCardView {
+  #element = null;
+  #film = {};
+
+  constructor(film) {
+    this.#film = film;
+  }
+
+  get template() {
+    return createFilmCardTemplate(this.#film);
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}

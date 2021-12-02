@@ -1,12 +1,21 @@
-import {createFilmsGenreTemplate} from './film-genre-view';
-import {createFilmsCommentTemplate} from './film-comment';
 import {EMOTIONS} from '../services/constants';
-import {createEmojiItemTemplate} from './emoji-item-view';
 import {getFormatDate, getFormatTime} from '../services/date';
+import {createElement} from '../render';
 
 const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
 
-export const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}, commentsData) => {
+const createFilmsGenreTemplate = (genre) => (
+  `<span class="film-details__genre">${genre}</span>`
+);
+
+const createEmojiItemTemplate = (emoji) => (
+  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji}" value="${emoji}">
+  <label class="film-details__emoji-label" for="emoji-${emoji}">
+    <img src="./images/emoji/${emoji}.png" width="30" height="30" alt="emoji">
+  </label>`
+);
+
+const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}) => {
   const {
     poster,
     ageRating,
@@ -29,7 +38,6 @@ export const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}, com
   const genres = genre.map(createFilmsGenreTemplate).join('');
 
   const commentsQuantity = comments.length;
-  const commentsList = commentsQuantity ? commentsData.map(createFilmsCommentTemplate).join('\n') : '';
   const emojiList = EMOTIONS.map(createEmojiItemTemplate).join('\n');
 
   return `<section class="film-details">
@@ -109,7 +117,6 @@ export const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}, com
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsQuantity}</span></h3>
 
           <ul class="film-details__comments-list">
-            ${commentsList}
           </ul>
 
           <div class="film-details__new-comment">
@@ -128,3 +135,28 @@ export const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}, com
     </form>
   </section>`;
 };
+
+export default class FilmDetailsView {
+  #element = null;
+  #film = {};
+
+  constructor(film) {
+    this.#film = film;
+  }
+
+  get template() {
+    return createFilmDetailsTemplate(this.#film);
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
