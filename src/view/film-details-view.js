@@ -1,6 +1,6 @@
 import {EMOTIONS} from '../services/constants';
 import {getFormatDate, getFormatTime} from '../services/date';
-import {createElement} from '../render';
+import AbstractView from './abstract-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
 
@@ -136,27 +136,15 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}) => {
   </section>`;
 };
 
-export default class FilmDetailsView {
-  #element = null;
-  #film = {};
+export default class FilmDetailsView extends AbstractView {
+  #film;
 
   constructor(film) {
+    super();
     this.#film = film;
   }
 
   get template() {
     return createFilmDetailsTemplate(this.#film);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

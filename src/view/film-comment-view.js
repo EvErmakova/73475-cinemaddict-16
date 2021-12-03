@@ -1,5 +1,5 @@
 import {getTimeFromNow} from '../services/date';
-import {createElement} from '../render';
+import AbstractView from './abstract-view';
 
 const createFilmsCommentTemplate = ({author, comment, date, emotion}) => (
   `<li class="film-details__comment">
@@ -17,27 +17,15 @@ const createFilmsCommentTemplate = ({author, comment, date, emotion}) => (
   </li>`
 );
 
-export default class FilmCommentView {
-  #element = null;
-  #comment = {};
+export default class FilmCommentView extends AbstractView {
+  #comment;
 
   constructor(comment) {
+    super();
     this.#comment = comment;
   }
 
   get template() {
     return createFilmsCommentTemplate(this.#comment);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

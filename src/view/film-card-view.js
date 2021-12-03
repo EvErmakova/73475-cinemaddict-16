@@ -1,5 +1,5 @@
 import {getDateYear, getFormatTime} from '../services/date';
-import {createElement} from '../render';
+import AbstractView from './abstract-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';
 
@@ -38,27 +38,15 @@ const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
   </article>`;
 };
 
-export default class FilmCardView {
-  #element = null;
-  #film = {};
+export default class FilmCardView extends AbstractView {
+  #film;
 
   constructor(film) {
+    super();
     this.#film = film;
   }
 
   get template() {
     return createFilmCardTemplate(this.#film);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
