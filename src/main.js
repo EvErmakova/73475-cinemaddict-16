@@ -1,6 +1,6 @@
 import {COMMENTS_COUNT, FILMS_COUNT} from './const';
 import {getFilmComments, getFilmsCount, getMostCommentedFilms, getTopRatedFilms} from './utils/film';
-import {remove, render} from './utils/render';
+import {remove, render, RenderPosition} from './utils/render';
 import {generateFilm} from './mock/film';
 import {generateComment} from './mock/comment';
 import {generateFilter} from './mock/filter';
@@ -55,14 +55,12 @@ const renderFilm = (container, film) => {
 
   render(container, filmCardComponent);
 
-  const filmCardLinkElement = filmCardComponent.element.querySelector('.film-card__link');
-  filmCardLinkElement.addEventListener('click', () => {
+  filmCardComponent.setOpenDetailsHandler(() => {
     openFilmDetails();
     document.addEventListener('keydown', onEscKeyDown);
   });
 
-  const filmDetailsCloseButton = filmDetailsComponent.element.querySelector('.film-details__close-btn');
-  filmDetailsCloseButton.addEventListener('click', () => {
+  filmDetailsComponent.setCloseDetailsHandler(() => {
     closeFilmDetails();
     document.removeEventListener('keydown', onEscKeyDown);
   });
@@ -102,8 +100,7 @@ const renderSimpleFilmsList = (container, films) => {
     const moreButtonComponent = new MoreButtonView();
     render(simpleFilmsListElement, moreButtonComponent);
 
-    moreButtonComponent.element.addEventListener('click', (evt) => {
-      evt.preventDefault();
+    moreButtonComponent.setClickHandler(() => {
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
         .forEach((film) => renderFilm(simpleFilmsContainerElement, film));
@@ -121,15 +118,15 @@ const renderFilms = (container, films) => {
   const filmsComponent = new FilmsView();
   const alreadyWatchedCount = getFilmsCount(films).alreadyWatched;
 
+  render(container, filmsComponent);
+
   if (films.length === 0) {
-    render(container, filmsComponent);
     render(filmsComponent, new NoFilmsView());
     return;
   }
 
   render(siteHeaderElement, new ProfileView(alreadyWatchedCount));
-  render(container, new SortView());
-  render(container, filmsComponent);
+  render(filmsComponent, new SortView(), RenderPosition.BEFOREBEGIN);
 
   renderSimpleFilmsList(filmsComponent, films);
 
