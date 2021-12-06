@@ -1,5 +1,5 @@
-import {EMOTIONS} from '../services/constants';
-import {getFormatDate, getFormatTime} from '../services/date';
+import {EMOTIONS} from '../const';
+import {getFormatDate, getFormatTime} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';

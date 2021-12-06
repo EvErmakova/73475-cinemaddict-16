@@ -1,4 +1,4 @@
-import {getFilmsCount} from '../services/data';
+import {getFilmsCount} from '../utils/film';
 
 const filmToFilterMap = {
   watchlist: (films) => getFilmsCount(films).watchList,

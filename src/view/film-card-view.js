@@ -1,4 +1,4 @@
-import {getDateYear, getFormatTime} from '../services/date';
+import {getDateYear, getFormatTime} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';

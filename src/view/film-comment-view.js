@@ -1,4 +1,4 @@
-import {getTimeFromNow} from '../services/date';
+import {getTimeFromNow} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const createFilmsCommentTemplate = ({author, comment, date, emotion}) => (
