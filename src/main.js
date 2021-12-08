@@ -1,5 +1,5 @@
-import {COMMENTS_COUNT, FILMS_COUNT} from './const';
-import {getFilmComments, getFilmsCount, getMostCommentedFilms, getTopRatedFilms} from './utils/film';
+import {COMMENTS_COUNT, EXTRA_FILM_COUNT, FILMS_COUNT} from './const';
+import {getFilmsCount} from './utils/film';
 import {remove, render, RenderPosition} from './utils/render';
 import {generateFilm} from './mock/film';
 import {generateComment} from './mock/comment';
@@ -34,10 +34,10 @@ const renderFilm = (container, film) => {
     bodyElement.classList.add('hide-overflow');
     render(bodyElement, filmDetailsComponent);
 
+    const filmComments = commentsData.filter((item) => film.comments.includes(item.id));
     const commentsListElement = filmDetailsComponent.element.querySelector('.film-details__comments-list');
     for (let i = 0; i < film.comments.length; i++) {
-      const comment = getFilmComments(film, commentsData)[i];
-      render(commentsListElement, new FilmCommentView(comment));
+      render(commentsListElement, new FilmCommentView(filmComments[i]));
     }
   };
 
@@ -74,8 +74,7 @@ const renderFilmsList = (container, title, films, count = films.length) => {
   const containerElement = listElement.querySelector('.films-list__container');
 
   for (let i = 0; i < count; i++) {
-    const film = films[i];
-    renderFilm(containerElement, film);
+    renderFilm(containerElement, films[i]);
   }
 
   return {listElement, containerElement};
@@ -111,12 +110,20 @@ const renderFullFilmsList = (container, films) => {
 };
 
 const renderTopFilmsList = (container, films) => {
-  const {listElement} = renderFilmsList(container, 'Top rated', getTopRatedFilms(films));
+  const topRatedFilms = films
+    .sort((current, next) => next.filmInfo.totalRating - current.filmInfo.totalRating)
+    .slice(0, EXTRA_FILM_COUNT);
+
+  const {listElement} = renderFilmsList(container, 'Top rated', topRatedFilms);
   listElement.classList.add('films-list--extra');
 };
 
 const renderMostCommentedFilmsList = (container, films) => {
-  const {listElement} = renderFilmsList(container, 'Most commented', getMostCommentedFilms(films));
+  const mostCommentedFilms = films
+    .sort((current, next) => next.comments.length - current.comments.length)
+    .slice(0, EXTRA_FILM_COUNT);
+
+  const {listElement} = renderFilmsList(container, 'Most commented', mostCommentedFilms);
   listElement.classList.add('films-list--extra');
 };
 
