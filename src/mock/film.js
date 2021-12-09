@@ -1,5 +1,5 @@
-import {getRandomArrayItem, getRandomBoolean, getRandomDate, getRandomInteger} from '../services/utils';
-import {COMMENTS_COUNT} from '../services/constants';
+import {getRandomArrayItem, getRandomBoolean, getRandomDate, getRandomInteger} from '../utils/common';
+import {COMMENTS_COUNT} from '../const';
 
 const Description = {
   MIN_COUNT: 1,

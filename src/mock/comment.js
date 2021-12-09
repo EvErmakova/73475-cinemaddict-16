@@ -1,5 +1,5 @@
-import {getRandomArrayItem, getRandomDate} from '../services/utils';
-import {EMOTIONS} from '../services/constants';
+import {getRandomArrayItem, getRandomDate} from '../utils/common';
+import {EMOTIONS} from '../const';
 
 const authors = [
   'Tim Macoveev',

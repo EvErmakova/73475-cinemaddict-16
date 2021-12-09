@@ -1,6 +1,6 @@
-import {EMOTIONS} from '../services/constants';
-import {getFormatDate, getFormatTime} from '../services/date';
-import {createElement} from '../render';
+import {EMOTIONS} from '../const';
+import {getFormatDate, getFormatTime} from '../utils/date';
+import AbstractView from './abstract-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
 
@@ -136,11 +136,11 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}) => {
   </section>`;
 };
 
-export default class FilmDetailsView {
-  #element = null;
-  #film = {};
+export default class FilmDetailsView extends AbstractView {
+  #film;
 
   constructor(film) {
+    super();
     this.#film = film;
   }
 
@@ -148,15 +148,13 @@ export default class FilmDetailsView {
     return createFilmDetailsTemplate(this.#film);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
+  setCloseDetailsHandler = (callback) => {
+    this._callback.closeDetailsClick = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeDetailsHandler);
   }
 
-  removeElement() {
-    this.#element = null;
+  #closeDetailsHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.closeDetailsClick();
   }
 }

@@ -1,4 +1,4 @@
-import {createElement} from '../render';
+import AbstractView from './abstract-view';
 
 const createMainNavigationItemTemplate = ({name, count}) => {
   const title = name[0].toUpperCase() + name.slice(1);
@@ -20,27 +20,15 @@ const createMainNavigationTemplate = (filters) => {
   </nav>`;
 };
 
-export default class MainNavigationView {
-  #element = null;
+export default class MainNavigationView extends AbstractView {
   #filters = null;
 
   constructor(filters) {
+    super();
     this.#filters = filters;
   }
 
   get template() {
     return createMainNavigationTemplate(this.#filters);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
