@@ -57,6 +57,10 @@ export default class FilmsPresenter {
   }
 
   #openFilmDetails = (film) => {
+    if (document.querySelector('.film-details')) {
+      this.#closeFilmDetails();
+    }
+
     this.#filmDetailsComponent = new FilmDetailsView(film);
 
     bodyElement.classList.add('hide-overflow');
@@ -65,12 +69,12 @@ export default class FilmsPresenter {
 
     this.#filmDetailsComponent.setCloseDetailsHandler(() => {
       this.#closeFilmDetails();
-      document.removeEventListener('keydown', this.#onEscKeyDown);
     });
   }
 
   #closeFilmDetails = () => {
     bodyElement.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', this.#onEscKeyDown);
     remove(this.#filmDetailsComponent);
   }
 
@@ -78,7 +82,6 @@ export default class FilmsPresenter {
     if (evt.key === 'Esc' || evt.key === 'Escape') {
       evt.preventDefault();
       this.#closeFilmDetails();
-      document.removeEventListener('keydown', this.#onEscKeyDown);
     }
   }
 
