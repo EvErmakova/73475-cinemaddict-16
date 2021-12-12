@@ -31,6 +31,7 @@ export default class FilmsPresenter {
   #mostCommentedFilms = [];
   #comments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
+  #renderedFilmCards = new Map;
 
   constructor(filmsListContainer) {
     this.#filmsContainer = filmsListContainer;
@@ -58,7 +59,7 @@ export default class FilmsPresenter {
   }
 
   #openFilmDetails = (film) => {
-    if (document.querySelector('.film-details')) {
+    if (this.#filmDetailsComponent !== null) {
       this.#closeFilmDetails();
     }
 
@@ -68,10 +69,11 @@ export default class FilmsPresenter {
     render(bodyElement, this.#filmDetailsComponent);
     this.#renderFilmComments(film);
 
+
+    this.#filmDetailsComponent.setCloseDetailsHandler(() => this.#closeFilmDetails());
     this.#filmDetailsComponent.setWatchlistClickHandler(() => this.#handleWatchlistClick(film));
     this.#filmDetailsComponent.setWatchedClickHandler(() => this.#handleWatchedClick(film));
     this.#filmDetailsComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick(film));
-    this.#filmDetailsComponent.setCloseDetailsHandler(() => this.#closeFilmDetails());
   }
 
   #closeFilmDetails = () => {
@@ -135,6 +137,8 @@ export default class FilmsPresenter {
     filmCardComponent.setWatchlistClickHandler(() => this.#handleWatchlistClick(film));
     filmCardComponent.setWatchedClickHandler(() => this.#handleWatchedClick(film));
     filmCardComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick(film));
+
+    this.#renderedFilmCards.set(film.number, filmCardComponent);
   }
 
   #renderFilmsCards = (container, films, from, to) => {
@@ -178,6 +182,17 @@ export default class FilmsPresenter {
     });
   }
 
+  #clearFilmsLists = () => {
+    this.#renderedFilmCards.forEach((card) => remove(card));
+    this.#renderedFilmCards.clear();
+    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
+
+    remove(this.#moreButtonComponent);
+    remove(this.#fullFilmsComponent);
+    remove(this.#topFilmsComponent);
+    remove(this.#mostCommentedFilmsComponent);
+  }
+
   #renderFullFilmsList = () => {
     this.#fullFilmsComponent = new FilmsListView('All movies. Upcoming');
     this.#fullFilmsComponent.element.querySelector('.films-list__title').classList.add('visually-hidden');
@@ -194,7 +209,7 @@ export default class FilmsPresenter {
   }
 
   #renderTopFilmsList = () => {
-    this.#topRatedFilms = this.#films
+    this.#topRatedFilms = Array.from(this.#films)
       .sort((current, next) => next.filmInfo.totalRating - current.filmInfo.totalRating)
       .slice(0, EXTRA_FILM_COUNT);
 
@@ -205,7 +220,7 @@ export default class FilmsPresenter {
   }
 
   #renderMostCommentedFilmsList = () => {
-    this.#mostCommentedFilms = this.#films
+    this.#mostCommentedFilms = Array.from(this.#films)
       .sort((current, next) => next.comments.length - current.comments.length)
       .slice(0, EXTRA_FILM_COUNT);
 
