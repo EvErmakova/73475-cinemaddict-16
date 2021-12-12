@@ -153,5 +153,5 @@ const filmsPresenter = new FilmsPresenter(siteMainElement);
 
 render(siteMainElement, new MainNavigationView(filters));
 render(siteHeaderElement, new ProfileView(alreadyWatchedCount));
-filmsPresenter.init(filmsData);
+filmsPresenter.init(filmsData, commentsData);
 render(footerStatisticsElement, new FilmsCounterView(filmsData.length));
