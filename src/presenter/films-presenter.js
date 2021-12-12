@@ -5,9 +5,9 @@ import SortView from '../view/sort-view';
 import MoreButtonView from '../view/more-button-view';
 import FilmsListView from '../view/films-list-view';
 import FilmsContainerView from '../view/films-container-view';
-import FilmCardView from "../view/film-card-view";
-import FilmDetailsView from "../view/film-details-view";
-import FilmCommentView from "../view/film-comment-view";
+import FilmCardView from '../view/film-card-view';
+import FilmDetailsView from '../view/film-details-view';
+import FilmCommentView from '../view/film-comment-view';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -26,6 +26,7 @@ export default class FilmsPresenter {
   #films = [];
   #topRatedFilms = [];
   #mostCommentedFilms = [];
+  #renderedFilmCount = FILM_COUNT_PER_STEP;
 
   constructor(filmsListContainer) {
     this.#filmsContainer = filmsListContainer;
@@ -67,15 +68,34 @@ export default class FilmsPresenter {
     render(this.#filmsComponent, this.#noFilmsComponent);
   }
 
+  #handleMoreButtonClick = () => {
+    this.#renderFilmsCards(
+      this.#fullFilmsComponent.element.querySelector('.films-list__container'),
+      this.#films,
+      this.#renderedFilmCount,
+      this.#renderedFilmCount + FILM_COUNT_PER_STEP);
+
+    this.#renderedFilmCount += FILM_COUNT_PER_STEP;
+
+    if (this.#renderedFilmCount >= this.#films.length) {
+      remove(this.#moreButtonComponent);
+    }
+  }
+
   #renderMoreButton = () => {
     render(this.#fullFilmsComponent, this.#moreButtonComponent);
+    this.#moreButtonComponent.setClickHandler(this.#handleMoreButtonClick);
   }
 
   #renderFullFilmsList = () => {
     this.#fullFilmsComponent = new FilmsListView('All movies. Upcoming');
     this.#fullFilmsComponent.element.querySelector('.films-list__title').classList.add('visually-hidden');
 
-    this.#renderFilmsList(this.#fullFilmsComponent, this.#films, Math.min(this.#films.length, FILM_COUNT_PER_STEP));
+    this.#renderFilmsList(
+      this.#fullFilmsComponent,
+      this.#films,
+      Math.min(this.#films.length, FILM_COUNT_PER_STEP)
+    );
 
     if (this.#films.length > FILM_COUNT_PER_STEP) {
       this.#renderMoreButton();
