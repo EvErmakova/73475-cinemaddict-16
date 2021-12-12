@@ -15,6 +15,7 @@ import MoreButtonView from './view/more-button-view';
 import FilmDetailsView from './view/film-details-view';
 import FilmCommentView from './view/film-comment-view';
 import NoFilmsView from './view/no-films-view';
+import FilmsPresenter from './presenter/films-presenter';
 
 const filmsData = Array.from({length: FILMS_COUNT}, generateFilm);
 const commentsData = Array.from({length: COMMENTS_COUNT}, generateComment);
@@ -148,7 +149,9 @@ const renderFilms = (container, films) => {
   }
 };
 
+const filmsPresenter = new FilmsPresenter(siteMainElement);
+
 render(siteMainElement, new MainNavigationView(filters));
 render(siteHeaderElement, new ProfileView(alreadyWatchedCount));
-renderFilms(siteMainElement, filmsData);
+filmsPresenter.init(filmsData);
 render(footerStatisticsElement, new FilmsCounterView(filmsData.length));
