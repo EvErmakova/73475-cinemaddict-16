@@ -1,4 +1,5 @@
 import {EXTRA_FILM_COUNT} from '../const';
+import {updateItem} from '../utils/common';
 import {remove, render, RenderPosition} from '../utils/render';
 import FilmsView from '../view/films-view';
 import SortView from '../view/sort-view';
@@ -67,9 +68,10 @@ export default class FilmsPresenter {
     render(bodyElement, this.#filmDetailsComponent);
     this.#renderFilmComments(film);
 
-    this.#filmDetailsComponent.setCloseDetailsHandler(() => {
-      this.#closeFilmDetails();
-    });
+    this.#filmDetailsComponent.setWatchlistClickHandler(() => this.#handleWatchlistClick(film));
+    this.#filmDetailsComponent.setWatchedClickHandler(() => this.#handleWatchedClick(film));
+    this.#filmDetailsComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick(film));
+    this.#filmDetailsComponent.setCloseDetailsHandler(() => this.#closeFilmDetails());
   }
 
   #closeFilmDetails = () => {
@@ -85,6 +87,42 @@ export default class FilmsPresenter {
     }
   }
 
+  #handleFilmChange = (updatedFilm) => {
+    this.#films = updateItem(this.#films, updatedFilm);
+    //TODO: обновлять карточки с фильмами
+  }
+
+  #handleWatchlistClick = (film) => {
+    this.#handleFilmChange({
+      ...film,
+      userDetails: {
+        ...film.userDetails,
+        watchlist: !film.userDetails.watchlist
+      }
+    });
+  }
+
+  #handleWatchedClick = (film) => {
+    this.#handleFilmChange({
+      ...film,
+      userDetails: {
+        ...film.userDetails,
+        alreadyWatched: !film.userDetails.alreadyWatched,
+        watchingDate: new Date()
+      }
+    });
+  }
+
+  #handleFavoriteClick = (film) => {
+    this.#handleFilmChange({
+      ...film,
+      userDetails: {
+        ...film.userDetails,
+        favorite: !film.userDetails.favorite
+      }
+    });
+  }
+
   #renderFilm = (container, film) => {
     const filmCardComponent = new FilmCardView(film);
     render(container, filmCardComponent);
@@ -93,6 +131,10 @@ export default class FilmsPresenter {
       this.#openFilmDetails(film);
       document.addEventListener('keydown', this.#onEscKeyDown);
     });
+
+    filmCardComponent.setWatchlistClickHandler(() => this.#handleWatchlistClick(film));
+    filmCardComponent.setWatchedClickHandler(() => this.#handleWatchedClick(film));
+    filmCardComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick(film));
   }
 
   #renderFilmsCards = (container, films, from, to) => {
