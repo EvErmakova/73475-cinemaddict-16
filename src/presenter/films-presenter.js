@@ -100,6 +100,8 @@ export default class FilmsPresenter {
       this.#filmDetailsComponent.filmData = updatedFilm;
       this.#filmDetailsComponent.updateControl(controlType);
     }
+
+    this.#updateExtraFilmsLists();
   }
 
   #handleControlClick = (film, controlType) => {
@@ -125,7 +127,7 @@ export default class FilmsPresenter {
     this.#handleFilmChange(updatedFilm, controlType);
   }
 
-  #renderFilm = (container, film) => {
+  #renderFilm = (container, film, isFullList) => {
     const filmCardComponent = new FilmCardView(film);
     render(container, filmCardComponent);
 
@@ -136,21 +138,23 @@ export default class FilmsPresenter {
 
     filmCardComponent.setControlClickHandler(this.#handleControlClick);
 
-    this.#renderedFilmCards.set(film.id, filmCardComponent);
+    if (isFullList) {
+      this.#renderedFilmCards.set(film.id, filmCardComponent);
+    }
   }
 
-  #renderFilmsCards = (container, films, from, to) => {
+  #renderFilmsCards = (container, films, from, to, isFullList) => {
     films
       .slice(from, to)
-      .forEach((film) => this.#renderFilm(container, film));
+      .forEach((film) => this.#renderFilm(container, film, isFullList));
   }
 
-  #renderFilmsList = (container, films, count = films.length) => {
+  #renderFilmsList = (container, films, count = films.length, isFullList = false) => {
     const filmsContainerComponent = new FilmsContainerView();
     render(this.#filmsComponent, container);
     render(container, filmsContainerComponent);
 
-    this.#renderFilmsCards(filmsContainerComponent, films, 0, count);
+    this.#renderFilmsCards(filmsContainerComponent, films, 0, count, isFullList);
     return filmsContainerComponent;
   }
 
@@ -164,7 +168,8 @@ export default class FilmsPresenter {
       container,
       this.#films,
       this.#renderedFilmCount,
-      this.#renderedFilmCount + FILM_COUNT_PER_STEP);
+      this.#renderedFilmCount + FILM_COUNT_PER_STEP,
+      true);
 
     this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
@@ -180,17 +185,6 @@ export default class FilmsPresenter {
     });
   }
 
-  #clearFilmsLists = () => {
-    this.#renderedFilmCards.forEach((card) => remove(card));
-    this.#renderedFilmCards.clear();
-    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
-
-    remove(this.#moreButtonComponent);
-    remove(this.#fullFilmsComponent);
-    remove(this.#topFilmsComponent);
-    remove(this.#mostCommentedFilmsComponent);
-  }
-
   #renderFullFilmsList = () => {
     this.#fullFilmsComponent = new FilmsListView('All movies. Upcoming');
     this.#fullFilmsComponent.element.querySelector('.films-list__title').classList.add('visually-hidden');
@@ -198,7 +192,8 @@ export default class FilmsPresenter {
     const filmsContainerComponent = this.#renderFilmsList(
       this.#fullFilmsComponent,
       this.#films,
-      Math.min(this.#films.length, FILM_COUNT_PER_STEP)
+      Math.min(this.#films.length, FILM_COUNT_PER_STEP),
+      true
     );
 
     if (this.#films.length > FILM_COUNT_PER_STEP) {
@@ -228,6 +223,23 @@ export default class FilmsPresenter {
     this.#renderFilmsList(this.#mostCommentedFilmsComponent, this.#mostCommentedFilms);
   }
 
+  #renderExtraFilmsLists = () => {
+    if (this.#films.some(({filmInfo}) => filmInfo.totalRating > 0)) {
+      this.#renderTopFilmsList();
+    }
+
+    if (this.#films.some(({comments}) => comments.length > 0)) {
+      this.#renderMostCommentedFilmsList();
+    }
+  }
+
+  #updateExtraFilmsLists = () => {
+    remove(this.#topFilmsComponent);
+    remove(this.#mostCommentedFilmsComponent);
+
+    this.#renderExtraFilmsLists();
+  }
+
   #renderFilms = () => {
     if (this.#films.length === 0) {
       this.#renderNoFilms();
@@ -236,13 +248,6 @@ export default class FilmsPresenter {
 
     this.#renderSort();
     this.#renderFullFilmsList();
-
-    if (this.#films.some(({filmInfo}) => filmInfo.totalRating > 0)) {
-      this.#renderTopFilmsList();
-    }
-
-    if (this.#films.some(({comments}) => comments.length > 0)) {
-      this.#renderMostCommentedFilmsList();
-    }
+    this.#renderExtraFilmsLists();
   };
 }
