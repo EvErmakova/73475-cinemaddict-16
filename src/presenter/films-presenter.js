@@ -70,10 +70,8 @@ export default class FilmsPresenter {
     this.#renderFilmComments(film);
 
 
-    this.#filmDetailsComponent.setCloseDetailsHandler(() => this.#closeFilmDetails());
-    this.#filmDetailsComponent.setWatchlistClickHandler(() => this.#handleWatchlistClick(film));
-    this.#filmDetailsComponent.setWatchedClickHandler(() => this.#handleWatchedClick(film));
-    this.#filmDetailsComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick(film));
+    this.#filmDetailsComponent.setCloseDetailsHandler(this.#closeFilmDetails);
+    this.#filmDetailsComponent.setControlClickHandler(this.#handleControlClick);
   }
 
   #closeFilmDetails = () => {
@@ -89,40 +87,42 @@ export default class FilmsPresenter {
     }
   }
 
-  #handleFilmChange = (updatedFilm) => {
+  #handleFilmChange = (updatedFilm, controlType) => {
     this.#films = updateItem(this.#films, updatedFilm);
-    //TODO: обновлять карточки с фильмами
+    const filmCard = this.#renderedFilmCards.get(updatedFilm.id);
+
+    if (filmCard) {
+      filmCard.filmData = updatedFilm;
+      filmCard.updateControl(controlType);
+    }
+
+    if (this.#filmDetailsComponent !== null && this.#filmDetailsComponent.filmData.id === updatedFilm.id) {
+      this.#filmDetailsComponent.filmData = updatedFilm;
+      this.#filmDetailsComponent.updateControl(controlType);
+    }
   }
 
-  #handleWatchlistClick = (film) => {
-    this.#handleFilmChange({
-      ...film,
-      userDetails: {
-        ...film.userDetails,
-        watchlist: !film.userDetails.watchlist
-      }
-    });
-  }
+  #handleControlClick = (film, controlType) => {
+    let updatedFilm = null;
 
-  #handleWatchedClick = (film) => {
-    this.#handleFilmChange({
-      ...film,
-      userDetails: {
-        ...film.userDetails,
-        alreadyWatched: !film.userDetails.alreadyWatched,
-        watchingDate: new Date()
-      }
-    });
-  }
+    if (controlType === 'watchlist') {
+      updatedFilm = {
+        ...film,
+        userDetails: {...film.userDetails, watchlist: !film.userDetails.watchlist}
+      };
+    } else if (controlType === 'watched') {
+      updatedFilm = {
+        ...film,
+        userDetails: {...film.userDetails, alreadyWatched: !film.userDetails.alreadyWatched, watchingDate: new Date()}
+      };
+    } else if (controlType === 'favorite') {
+      updatedFilm = {
+        ...film,
+        userDetails: {...film.userDetails, favorite: !film.userDetails.favorite}
+      };
+    }
 
-  #handleFavoriteClick = (film) => {
-    this.#handleFilmChange({
-      ...film,
-      userDetails: {
-        ...film.userDetails,
-        favorite: !film.userDetails.favorite
-      }
-    });
+    this.#handleFilmChange(updatedFilm, controlType);
   }
 
   #renderFilm = (container, film) => {
@@ -130,15 +130,13 @@ export default class FilmsPresenter {
     render(container, filmCardComponent);
 
     filmCardComponent.setOpenDetailsHandler(() => {
-      this.#openFilmDetails(film);
+      this.#openFilmDetails(filmCardComponent.filmData);
       document.addEventListener('keydown', this.#onEscKeyDown);
     });
 
-    filmCardComponent.setWatchlistClickHandler(() => this.#handleWatchlistClick(film));
-    filmCardComponent.setWatchedClickHandler(() => this.#handleWatchedClick(film));
-    filmCardComponent.setFavoriteClickHandler(() => this.#handleFavoriteClick(film));
+    filmCardComponent.setControlClickHandler(this.#handleControlClick);
 
-    this.#renderedFilmCards.set(film.number, filmCardComponent);
+    this.#renderedFilmCards.set(film.id, filmCardComponent);
   }
 
   #renderFilmsCards = (container, films, from, to) => {
