@@ -69,7 +69,6 @@ export default class FilmsPresenter {
     render(bodyElement, this.#filmDetailsComponent);
     this.#renderFilmComments(film);
 
-
     this.#filmDetailsComponent.setCloseDetailsHandler(this.#closeFilmDetails);
     this.#filmDetailsComponent.setControlClickHandler(this.#handleControlClick);
   }
@@ -127,7 +126,7 @@ export default class FilmsPresenter {
     this.#handleFilmChange(updatedFilm, controlType);
   }
 
-  #renderFilm = (container, film, isFullList) => {
+  #renderFilm = (container, film, map) => {
     const filmCardComponent = new FilmCardView(film);
     render(container, filmCardComponent);
 
@@ -138,23 +137,23 @@ export default class FilmsPresenter {
 
     filmCardComponent.setControlClickHandler(this.#handleControlClick);
 
-    if (isFullList) {
-      this.#renderedFilmCards.set(film.id, filmCardComponent);
+    if (map) {
+      map.set(film.id, filmCardComponent);
     }
   }
 
-  #renderFilmsCards = (container, films, from, to, isFullList) => {
+  #renderFilmsCards = (container, films, from, to, map) => {
     films
       .slice(from, to)
-      .forEach((film) => this.#renderFilm(container, film, isFullList));
+      .forEach((film) => this.#renderFilm(container, film, map));
   }
 
-  #renderFilmsList = (container, films, count = films.length, isFullList = false) => {
+  #renderFilmsList = (container, films, count = films.length, map = null) => {
     const filmsContainerComponent = new FilmsContainerView();
     render(this.#filmsComponent, container);
     render(container, filmsContainerComponent);
 
-    this.#renderFilmsCards(filmsContainerComponent, films, 0, count, isFullList);
+    this.#renderFilmsCards(filmsContainerComponent, films, 0, count, map);
     return filmsContainerComponent;
   }
 
@@ -169,7 +168,7 @@ export default class FilmsPresenter {
       this.#films,
       this.#renderedFilmCount,
       this.#renderedFilmCount + FILM_COUNT_PER_STEP,
-      true);
+      this.#renderedFilmCards);
 
     this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
@@ -193,7 +192,7 @@ export default class FilmsPresenter {
       this.#fullFilmsComponent,
       this.#films,
       Math.min(this.#films.length, FILM_COUNT_PER_STEP),
-      true
+      this.#renderedFilmCards
     );
 
     if (this.#films.length > FILM_COUNT_PER_STEP) {
