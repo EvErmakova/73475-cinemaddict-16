@@ -14,7 +14,7 @@ const bodyElement = document.body;
 const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
-  #filmsContainer = null;
+  #boardContainer = null;
 
   #boardComponent = new FilmsView();
   #sortComponent = new SortView();
@@ -32,15 +32,15 @@ export default class FilmsPresenter {
   #renderedFilmsCount = FILM_COUNT_PER_STEP;
   #renderedFilms = new Map;
 
-  constructor(filmsListContainer) {
-    this.#filmsContainer = filmsListContainer;
+  constructor(boardContainer) {
+    this.#boardContainer = boardContainer;
   }
 
   init = (films, comments) => {
     this.#films = [...films];
     this.#comments = [...comments];
 
-    render(this.#filmsContainer, this.#boardComponent);
+    render(this.#boardContainer, this.#boardComponent);
     this.#renderBoard();
   }
 
