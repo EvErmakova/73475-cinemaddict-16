@@ -201,10 +201,10 @@ export default class FilmsPresenter {
       .sort((current, next) => next.filmInfo.totalRating - current.filmInfo.totalRating)
       .slice(0, EXTRA_FILM_COUNT);
 
-    const filmsContainerComponent = new FilmsContainerView();
     this.#topFilmsComponent.element.classList.add('films-list--extra');
-
     render(this.#filmsComponent, this.#topFilmsComponent);
+
+    const filmsContainerComponent = new FilmsContainerView();
     render(this.#topFilmsComponent, filmsContainerComponent);
 
     topRatedFilms.forEach((film) => this.#renderFilm(filmsContainerComponent, film));
@@ -215,10 +215,10 @@ export default class FilmsPresenter {
       .sort((current, next) => next.comments.length - current.comments.length)
       .slice(0, EXTRA_FILM_COUNT);
 
-    const filmsContainerComponent = new FilmsContainerView();
     this.#mostCommentedFilmsComponent.element.classList.add('films-list--extra');
-
     render(this.#filmsComponent, this.#mostCommentedFilmsComponent);
+
+    const filmsContainerComponent = new FilmsContainerView();
     render(this.#mostCommentedFilmsComponent, filmsContainerComponent);
 
     mostCommentedFilms.forEach((film) => this.#renderFilm(filmsContainerComponent, film));
