@@ -16,7 +16,7 @@ const FILM_COUNT_PER_STEP = 5;
 export default class FilmsPresenter {
   #filmsContainer = null;
 
-  #filmsComponent = new FilmsView();
+  #boardComponent = new FilmsView();
   #sortComponent = new SortView();
   #moreButtonComponent = new MoreButtonView();
 
@@ -40,12 +40,12 @@ export default class FilmsPresenter {
     this.#films = [...films];
     this.#comments = [...comments];
 
-    render(this.#filmsContainer, this.#filmsComponent);
+    render(this.#filmsContainer, this.#boardComponent);
     this.#renderBoard();
   }
 
   #renderSort = () => {
-    render(this.#filmsComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
+    render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
   #renderComments = (film) => {
@@ -164,7 +164,7 @@ export default class FilmsPresenter {
 
   #renderNoFilms = () => {
     this.#noFilmsComponent = new FilmsListView('There are no movies in our database');
-    render(this.#filmsComponent, this.#noFilmsComponent);
+    render(this.#boardComponent, this.#noFilmsComponent);
   }
 
   #handleMoreButtonClick = () => {
@@ -202,7 +202,7 @@ export default class FilmsPresenter {
       .slice(0, EXTRA_FILM_COUNT);
 
     this.#topFilmsComponent.element.classList.add('films-list--extra');
-    render(this.#filmsComponent, this.#topFilmsComponent);
+    render(this.#boardComponent, this.#topFilmsComponent);
 
     const filmsContainerComponent = new FilmsContainerView();
     render(this.#topFilmsComponent, filmsContainerComponent);
@@ -216,7 +216,7 @@ export default class FilmsPresenter {
       .slice(0, EXTRA_FILM_COUNT);
 
     this.#mostCommentedFilmsComponent.element.classList.add('films-list--extra');
-    render(this.#filmsComponent, this.#mostCommentedFilmsComponent);
+    render(this.#boardComponent, this.#mostCommentedFilmsComponent);
 
     const filmsContainerComponent = new FilmsContainerView();
     render(this.#mostCommentedFilmsComponent, filmsContainerComponent);
