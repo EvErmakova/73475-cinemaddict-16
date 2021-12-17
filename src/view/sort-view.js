@@ -2,7 +2,7 @@ import {SORT_TYPE} from '../const';
 import AbstractView from './abstract-view';
 
 const createSortItemTemplate = (type) => (
-  `<li><a href="#" class="sort__button" data-sort-type="${type}">Sort by ${type}</a></li></li>`
+  `<li><a href="#" class="sort__button" data-sort-type="${type}">Sort by ${type}</a></li>`
 );
 
 const createSortTemplate = () => {
