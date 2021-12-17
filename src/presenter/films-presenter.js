@@ -24,12 +24,12 @@ export default class FilmsPresenter {
   #filmsListComponent = new FilmsListView('All movies. Upcoming');
   #filmsContainerComponent = new FilmsContainerView();
   #topFilmsComponent = new FilmsListView('Top rated');
-  #mostCommentedFilmsComponent = new FilmsListView('Most commented');
-  #filmDetailsComponent = null;
+  #viralFilmsComponent = new FilmsListView('Most commented');
+  #detailsComponent = null;
 
   #films = [];
   #comments = [];
-  #renderedFilmsCount = FILM_COUNT_PER_STEP;
+  #renderedCount = FILM_COUNT_PER_STEP;
   #renderedFilms = new Map;
 
   constructor(boardContainer) {
@@ -49,33 +49,33 @@ export default class FilmsPresenter {
   }
 
   #renderComments = (film) => {
-    const filmComments = this.#comments.filter((item) => film.comments.includes(item.id));
-    const commentsListElement = this.#filmDetailsComponent.element.querySelector('.film-details__comments-list');
-
-    for (let i = 0; i < film.comments.length; i++) {
-      render(commentsListElement, new FilmCommentView(filmComments[i]));
-    }
+    const commentsNode = this.#detailsComponent.element.querySelector('.film-details__comments-list');
+    this.#comments.forEach((c) => {
+      if (film.comments.includes(c.id)) {
+        render(commentsNode, new FilmCommentView(c));
+      }
+    });
   }
 
   #openDetails = (film) => {
-    if (this.#filmDetailsComponent !== null) {
+    if (this.#detailsComponent !== null) {
       this.#closeDetails();
     }
 
-    this.#filmDetailsComponent = new FilmDetailsView(film);
+    this.#detailsComponent = new FilmDetailsView(film);
 
     bodyElement.classList.add('hide-overflow');
-    render(bodyElement, this.#filmDetailsComponent);
+    render(bodyElement, this.#detailsComponent);
     this.#renderComments(film);
 
-    this.#filmDetailsComponent.setCloseDetailsHandler(this.#closeDetails);
-    this.#filmDetailsComponent.setControlClickHandler(this.#handleControlClick);
+    this.#detailsComponent.setCloseDetailsHandler(this.#closeDetails);
+    this.#detailsComponent.setControlClickHandler(this.#handleControlClick);
   }
 
   #closeDetails = () => {
     bodyElement.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this.#onEscKeyDown);
-    remove(this.#filmDetailsComponent);
+    remove(this.#detailsComponent);
   }
 
   #onEscKeyDown = (evt) => {
@@ -94,9 +94,9 @@ export default class FilmsPresenter {
       filmCard.updateControl(controlType);
     }
 
-    if (this.#filmDetailsComponent !== null && this.#filmDetailsComponent.filmData.id === updatedFilm.id) {
-      this.#filmDetailsComponent.filmData = updatedFilm;
-      this.#filmDetailsComponent.updateControl(controlType);
+    if (this.#detailsComponent !== null && this.#detailsComponent.filmData.id === updatedFilm.id) {
+      this.#detailsComponent.filmData = updatedFilm;
+      this.#detailsComponent.updateControl(controlType);
     }
 
     this.#updateExtraLists();
@@ -168,10 +168,10 @@ export default class FilmsPresenter {
   }
 
   #handleMoreButtonClick = () => {
-    this.#renderFilms(this.#renderedFilmsCount, this.#renderedFilmsCount + FILM_COUNT_PER_STEP);
-    this.#renderedFilmsCount += FILM_COUNT_PER_STEP;
+    this.#renderFilms(this.#renderedCount, this.#renderedCount + FILM_COUNT_PER_STEP);
+    this.#renderedCount += FILM_COUNT_PER_STEP;
 
-    if (this.#renderedFilmsCount >= this.#films.length) {
+    if (this.#renderedCount >= this.#films.length) {
       remove(this.#moreButtonComponent);
     }
   }
@@ -215,11 +215,11 @@ export default class FilmsPresenter {
       .sort((current, next) => next.comments.length - current.comments.length)
       .slice(0, EXTRA_FILM_COUNT);
 
-    this.#mostCommentedFilmsComponent.element.classList.add('films-list--extra');
-    render(this.#boardComponent, this.#mostCommentedFilmsComponent);
+    this.#viralFilmsComponent.element.classList.add('films-list--extra');
+    render(this.#boardComponent, this.#viralFilmsComponent);
 
     const filmsContainerComponent = new FilmsContainerView();
-    render(this.#mostCommentedFilmsComponent, filmsContainerComponent);
+    render(this.#viralFilmsComponent, filmsContainerComponent);
 
     mostCommentedFilms.forEach((film) => this.#renderFilm(filmsContainerComponent, film));
   }
@@ -236,7 +236,7 @@ export default class FilmsPresenter {
 
   #updateExtraLists = () => {
     remove(this.#topFilmsComponent);
-    remove(this.#mostCommentedFilmsComponent);
+    remove(this.#viralFilmsComponent);
 
     this.#renderExtraLists();
   }
