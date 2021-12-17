@@ -106,9 +106,9 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments}) => {
         </div>
 
         <section class="film-details__controls">
-          <button type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlistClassName}" id="watchlist" name="watchlist">Add to watchlist</button>
-          <button type="button" class="film-details__control-button film-details__control-button--watched ${watchedClassName}" id="watched" name="watched">Already watched</button>
-          <button type="button" class="film-details__control-button film-details__control-button--favorite ${favoriteClassName}" id="favorite" name="favorite">Add to favorites</button>
+          <button name="watchlist" type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlistClassName}" id="watchlist" name="watchlist">Add to watchlist</button>
+          <button name="watched" type="button" class="film-details__control-button film-details__control-button--watched ${watchedClassName}" id="watched" name="watched">Already watched</button>
+          <button name="favorite" type="button" class="film-details__control-button film-details__control-button--favorite ${favoriteClassName}" id="favorite" name="favorite">Add to favorites</button>
         </section>
       </div>
 
@@ -148,13 +148,37 @@ export default class FilmDetailsView extends AbstractView {
     return createFilmDetailsTemplate(this.#film);
   }
 
+  get filmData() {
+    return this.#film;
+  }
+
+  set filmData(filmData) {
+    this.#film = filmData;
+  }
+
+  updateControl = (controlType) => {
+    this.element.querySelector(`[name = ${controlType}]`).classList.toggle(CONTROL_ACTIVE_CLASS);
+  }
+
   setCloseDetailsHandler = (callback) => {
     this._callback.closeDetailsClick = callback;
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeDetailsHandler);
   }
 
+  setControlClickHandler = (callback) => {
+    this._callback.controlClick = callback;
+    this.element.querySelectorAll('.film-details__control-button').forEach((control) => {
+      control.addEventListener('click', this.#controlClickHandler);
+    });
+  }
+
   #closeDetailsHandler = (evt) => {
     evt.preventDefault();
     this._callback.closeDetailsClick();
+  }
+
+  #controlClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.controlClick(this.filmData, evt.target.getAttribute('name'));
   }
 }
