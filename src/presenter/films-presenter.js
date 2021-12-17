@@ -1,5 +1,6 @@
 import {EXTRA_FILM_COUNT} from '../const';
 import {updateItem} from '../utils/common';
+import {getSortedFilms} from '../utils/film';
 import {remove, render, RenderPosition} from '../utils/render';
 import FilmsView from '../view/films-view';
 import SortView from '../view/sort-view';
@@ -32,6 +33,9 @@ export default class FilmsPresenter {
   #renderedCount = FILM_COUNT_PER_STEP;
   #renderedFilms = new Map;
 
+  #currentSortType = 'default';
+  #sourcedFilms = [];
+
   constructor(boardContainer) {
     this.#boardContainer = boardContainer;
   }
@@ -39,13 +43,34 @@ export default class FilmsPresenter {
   init = (films, comments) => {
     this.#films = [...films];
     this.#comments = [...comments];
+    this.#sourcedFilms = [...films];
 
     render(this.#boardContainer, this.#boardComponent);
     this.#renderBoard();
   }
 
+  #sort = (sortType) => {
+    if (sortType === 'default') {
+      this.#films = [...this.#sourcedFilms];
+    } else {
+      this.#films = getSortedFilms(this.#films, sortType);
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if (sortType === this.#currentSortType) {
+      return;
+    }
+
+    this.#sort(sortType);
+    this.#updateFullList();
+  }
+
   #renderSort = () => {
     render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
   #renderComments = (film) => {
@@ -87,6 +112,7 @@ export default class FilmsPresenter {
 
   #handleFilmChange = (updatedFilm, controlType) => {
     this.#films = updateItem(this.#films, updatedFilm);
+    this.#sourcedFilms = updateItem(this.#sourcedFilms, updatedFilm);
     const filmCard = this.#renderedFilms.get(updatedFilm.id);
 
     if (filmCard) {
@@ -196,32 +222,41 @@ export default class FilmsPresenter {
     }
   }
 
+  #updateFullList = () => {
+    this.#renderedFilms.forEach((card) => remove(card));
+    this.#renderedFilms.clear();
+    this.#renderedCount = FILM_COUNT_PER_STEP;
+
+    remove(this.#moreButtonComponent);
+    remove(this.#filmsListComponent);
+
+    this.#renderFullList();
+  }
+
   #renderTopFilms = () => {
-    const topRatedFilms = [...this.#films]
-      .sort((current, next) => next.filmInfo.totalRating - current.filmInfo.totalRating)
+    const topRatedFilms = getSortedFilms([...this.#sourcedFilms], 'rating')
       .slice(0, EXTRA_FILM_COUNT);
 
     this.#topFilmsComponent.element.classList.add('films-list--extra');
     render(this.#boardComponent, this.#topFilmsComponent);
 
-    const filmsContainerComponent = new FilmsContainerView();
-    render(this.#topFilmsComponent, filmsContainerComponent);
+    const containerComponent = new FilmsContainerView();
+    render(this.#topFilmsComponent, containerComponent);
 
-    topRatedFilms.forEach((film) => this.#renderFilm(filmsContainerComponent, film));
+    topRatedFilms.forEach((film) => this.#renderFilm(containerComponent, film));
   }
 
-  #renderMostCommentedFilms = () => {
-    const mostCommentedFilms = [...this.#films]
-      .sort((current, next) => next.comments.length - current.comments.length)
+  #renderViralFilms = () => {
+    const viralFilms = getSortedFilms([...this.#films], 'comments')
       .slice(0, EXTRA_FILM_COUNT);
 
     this.#viralFilmsComponent.element.classList.add('films-list--extra');
     render(this.#boardComponent, this.#viralFilmsComponent);
 
-    const filmsContainerComponent = new FilmsContainerView();
-    render(this.#viralFilmsComponent, filmsContainerComponent);
+    const containerComponent = new FilmsContainerView();
+    render(this.#viralFilmsComponent, containerComponent);
 
-    mostCommentedFilms.forEach((film) => this.#renderFilm(filmsContainerComponent, film));
+    viralFilms.forEach((film) => this.#renderFilm(containerComponent, film));
   }
 
   #renderExtraLists = () => {
@@ -230,7 +265,7 @@ export default class FilmsPresenter {
     }
 
     if (this.#films.some(({comments}) => comments.length > 0)) {
-      this.#renderMostCommentedFilms();
+      this.#renderViralFilms();
     }
   }
 
