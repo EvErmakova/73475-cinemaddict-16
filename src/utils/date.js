@@ -1,20 +1,23 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
 export const getFormatDate = (date) => dayjs(date).format('D MMMM YYYY');
 
-export const getDateYear = (date) => dayjs(date).format('YYYY');
+export const getYear = (date) => dayjs(date).format('YYYY');
 
 export const getFormatTime = (time) => {
+  const formatTime = dayjs.duration(time * 60000);
+
   if (time < 60) {
-    return `${time}m`;
-  } else {
-    const hours = Math.floor(time / 60);
-    const minutes = time % 60 !== 0 ? `${time % 60}m` : '';
-    return `${hours}h ${minutes}`;
+    return `${formatTime.minutes()}m`;
   }
+
+  return `${formatTime.hours()}h ${formatTime.minutes()}m`;
+
 };
 
 export const getTimeFromNow = (date) => dayjs(date).fromNow();
