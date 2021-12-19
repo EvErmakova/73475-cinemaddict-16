@@ -17,7 +17,7 @@ const createEmojiItemTemplate = (emoji, activeEmoji) => (
   </label>`
 );
 
-const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji}, commentsData) => {
+const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji, commentText}, commentsData) => {
   const {
     poster,
     ageRating,
@@ -130,7 +130,8 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
             </div>
 
             <label class="film-details__comment-label">
-              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"
+              >${commentText ? commentText : ''}</textarea>
             </label>
 
             <div class="film-details__emoji-list">
@@ -192,6 +193,8 @@ export default class FilmDetailsView extends SmartView {
     this.element.querySelectorAll('.film-details__emoji-label img').forEach((item) => {
       item.addEventListener('click', this.#emojiClickHandler);
     });
+
+    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
   }
 
   #closeDetailsHandler = (evt) => {
@@ -211,19 +214,24 @@ export default class FilmDetailsView extends SmartView {
     });
   }
 
+  #commentInputHandler = (evt) => {
+    evt.preventDefault();
+    this.updateData({
+      commentText: evt.target.value,
+    }, true);
+  }
+
   static parseFilmToData = (film) => ({
     ...film,
-    activeEmoji: film.activeEmoji
+    activeEmoji: film.activeEmoji,
+    commentText: null
   });
 
   static parseDataToFilm = (data) => {
     const film = {...data};
 
-    if (!film.activeEmoji) {
-      film.activeEmoji = null;
-    }
-
     delete film.activeEmoji;
+    delete film.commentText;
 
     return film;
   }
