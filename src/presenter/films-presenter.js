@@ -9,7 +9,6 @@ import FilmsListView from '../view/films-list-view';
 import FilmsContainerView from '../view/films-container-view';
 import FilmCardView from '../view/film-card-view';
 import FilmDetailsView from '../view/film-details-view';
-import FilmCommentView from '../view/film-comment-view';
 
 const bodyElement = document.body;
 const FILM_COUNT_PER_STEP = 5;
@@ -73,25 +72,16 @@ export default class FilmsPresenter {
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
-  #renderComments = (film) => {
-    const commentsNode = this.#detailsComponent.element.querySelector('.film-details__comments-list');
-    this.#comments.forEach((c) => {
-      if (film.comments.includes(c.id)) {
-        render(commentsNode, new FilmCommentView(c));
-      }
-    });
-  }
-
   #openDetails = (film) => {
     if (this.#detailsComponent !== null) {
       this.#closeDetails();
     }
 
-    this.#detailsComponent = new FilmDetailsView(film);
+    const filmComments = this.#comments.filter((comment) => film.comments.includes(comment.id));
+    this.#detailsComponent = new FilmDetailsView(film, filmComments);
 
     bodyElement.classList.add('hide-overflow');
     render(bodyElement, this.#detailsComponent);
-    this.#renderComments(film);
 
     this.#detailsComponent.setCloseDetailsHandler(this.#closeDetails);
     this.#detailsComponent.setControlClickHandler(this.#handleControlClick);

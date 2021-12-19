@@ -1,6 +1,7 @@
 import {EMOTIONS} from '../const';
 import {getFormatDate, getFormatTime} from '../utils/date';
 import SmartView from './smart-view';
+import FilmCommentView from './film-comment-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
 
@@ -16,7 +17,7 @@ const createEmojiItemTemplate = (emoji, activeEmoji) => (
   </label>`
 );
 
-const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji}) => {
+const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji}, commentsData) => {
   const {
     poster,
     ageRating,
@@ -39,6 +40,8 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
   const genres = genre.map(createFilmsGenreTemplate).join('');
 
   const commentsQuantity = comments.length;
+
+  const commentsList = commentsData.map((comment) => new FilmCommentView(comment).template).join('\n');
   const emojiList = EMOTIONS.map((emoji) => createEmojiItemTemplate(emoji, activeEmoji)).join('\n');
 
   return `<section class="film-details">
@@ -118,6 +121,7 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsQuantity}</span></h3>
 
           <ul class="film-details__comments-list">
+            ${commentsList}
           </ul>
 
           <div class="film-details__new-comment">
@@ -140,16 +144,18 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
 };
 
 export default class FilmDetailsView extends SmartView {
+  #comments = [];
 
-  constructor(film) {
+  constructor(film, comments) {
     super();
     this._data = FilmDetailsView.parseFilmToData(film);
+    this.#comments = comments;
 
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmDetailsTemplate(this._data);
+    return createFilmDetailsTemplate(this._data, this.#comments);
   }
 
   get filmData() {
