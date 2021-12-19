@@ -100,19 +100,17 @@ export default class FilmsPresenter {
     }
   }
 
-  #handleFilmChange = (updatedFilm, controlType) => {
+  #handleFilmChange = (updatedFilm) => {
     this.#films = updateItem(this.#films, updatedFilm);
     this.#origFilms = updateItem(this.#origFilms, updatedFilm);
     const filmCard = this.#renderedCards.get(updatedFilm.id);
 
     if (filmCard) {
-      filmCard.filmData = updatedFilm;
-      filmCard.updateControl(controlType);
+      filmCard.updateData(updatedFilm);
     }
 
     if (this.#detailsComponent !== null && this.#detailsComponent.filmData.id === updatedFilm.id) {
-      this.#detailsComponent.filmData = updatedFilm;
-      this.#detailsComponent.updateControl(controlType);
+      this.#detailsComponent.updateData(updatedFilm);
     }
 
     this.#updateExtraLists();
@@ -137,7 +135,7 @@ export default class FilmsPresenter {
         userDetails: {
           ...film.userDetails,
           alreadyWatched: !film.userDetails.alreadyWatched,
-          watchingDate: new Date()
+          watchingDate: !film.userDetails.alreadyWatched ? new Date() : null
         }
       };
     }
@@ -152,7 +150,7 @@ export default class FilmsPresenter {
       };
     }
 
-    this.#handleFilmChange(updatedFilm, controlType);
+    this.#handleFilmChange(updatedFilm);
   }
 
   #renderCard = (container, film) => {

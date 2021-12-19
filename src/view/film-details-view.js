@@ -163,14 +163,6 @@ export default class FilmDetailsView extends SmartView {
     return this._data;
   }
 
-  set filmData(filmData) {
-    this._data = filmData;
-  }
-
-  updateControl = (controlType) => {
-    this.element.querySelector(`[name = ${controlType}]`).classList.toggle(CONTROL_ACTIVE_CLASS);
-  }
-
   restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setCloseDetailsHandler(this._callback.closeDetailsClick);

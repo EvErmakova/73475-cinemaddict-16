@@ -1,5 +1,5 @@
 import {getDateYear, getFormatTime} from '../utils/date';
-import AbstractView from './abstract-view';
+import SmartView from './smart-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';
 
@@ -38,28 +38,23 @@ const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
   </article>`;
 };
 
-export default class FilmCardView extends AbstractView {
-  #film;
-
+export default class FilmCardView extends SmartView {
   constructor(film) {
     super();
-    this.#film = film;
+    this._data = film;
   }
 
   get template() {
-    return createFilmCardTemplate(this.#film);
+    return createFilmCardTemplate(this._data);
   }
 
   get filmData() {
-    return this.#film;
+    return this._data;
   }
 
-  set filmData(filmData) {
-    this.#film = filmData;
-  }
-
-  updateControl = (controlType) => {
-    this.element.querySelector(`[name = ${controlType}]`).classList.toggle(CONTROL_ACTIVE_CLASS);
+  restoreHandlers = () => {
+    this.setOpenDetailsHandler(this._callback.openDetailsClick);
+    this.setControlClickHandler(this._callback.controlClick);
   }
 
   setOpenDetailsHandler = (callback) => {
@@ -81,6 +76,6 @@ export default class FilmCardView extends AbstractView {
 
   #controlClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.controlClick(this.filmData, evt.target.getAttribute('name'));
+    this._callback.controlClick(this._data, evt.target.getAttribute('name'));
   }
 }
