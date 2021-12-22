@@ -9,7 +9,6 @@ import FilmsListView from '../view/films-list-view';
 import FilmsContainerView from '../view/films-container-view';
 import FilmCardView from '../view/film-card-view';
 import FilmDetailsView from '../view/film-details-view';
-import FilmCommentView from '../view/film-comment-view';
 
 const bodyElement = document.body;
 const FILM_COUNT_PER_STEP = 5;
@@ -73,25 +72,16 @@ export default class FilmsPresenter {
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
-  #renderComments = (film) => {
-    const commentsNode = this.#detailsComponent.element.querySelector('.film-details__comments-list');
-    this.#comments.forEach((c) => {
-      if (film.comments.includes(c.id)) {
-        render(commentsNode, new FilmCommentView(c));
-      }
-    });
-  }
-
   #openDetails = (film) => {
     if (this.#detailsComponent !== null) {
       this.#closeDetails();
     }
 
-    this.#detailsComponent = new FilmDetailsView(film);
+    const filmComments = this.#comments.filter((comment) => film.comments.includes(comment.id));
+    this.#detailsComponent = new FilmDetailsView(film, filmComments);
 
     bodyElement.classList.add('hide-overflow');
     render(bodyElement, this.#detailsComponent);
-    this.#renderComments(film);
 
     this.#detailsComponent.setCloseDetailsHandler(this.#closeDetails);
     this.#detailsComponent.setControlClickHandler(this.#handleControlClick);
@@ -110,19 +100,17 @@ export default class FilmsPresenter {
     }
   }
 
-  #handleFilmChange = (updatedFilm, controlType) => {
+  #handleFilmChange = (updatedFilm) => {
     this.#films = updateItem(this.#films, updatedFilm);
     this.#origFilms = updateItem(this.#origFilms, updatedFilm);
     const filmCard = this.#renderedCards.get(updatedFilm.id);
 
     if (filmCard) {
-      filmCard.filmData = updatedFilm;
-      filmCard.updateControl(controlType);
+      filmCard.updateData(updatedFilm);
     }
 
     if (this.#detailsComponent !== null && this.#detailsComponent.filmData.id === updatedFilm.id) {
-      this.#detailsComponent.filmData = updatedFilm;
-      this.#detailsComponent.updateControl(controlType);
+      this.#detailsComponent.updateData(updatedFilm);
     }
 
     this.#updateExtraLists();
@@ -147,7 +135,7 @@ export default class FilmsPresenter {
         userDetails: {
           ...film.userDetails,
           alreadyWatched: !film.userDetails.alreadyWatched,
-          watchingDate: new Date()
+          watchingDate: !film.userDetails.alreadyWatched ? new Date() : null
         }
       };
     }
@@ -162,7 +150,7 @@ export default class FilmsPresenter {
       };
     }
 
-    this.#handleFilmChange(updatedFilm, controlType);
+    this.#handleFilmChange(updatedFilm);
   }
 
   #renderCard = (container, film) => {
