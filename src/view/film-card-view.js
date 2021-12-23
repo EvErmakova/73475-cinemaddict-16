@@ -1,4 +1,4 @@
-import {getYear, getFormatTime} from '../utils/date';
+import {getYear, formatDuration} from '../utils/date';
 import SmartView from './smart-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';
@@ -23,7 +23,7 @@ const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
       <p class="film-card__rating">${totalRating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${getYear(release.date)}</span>
-        <span class="film-card__duration">${getFormatTime(runtime)}</span>
+        <span class="film-card__duration">${formatDuration(runtime)}</span>
         <span class="film-card__genre">${genre[0]}</span>
       </p>
       <img src="${poster}" alt="" class="film-card__poster">
