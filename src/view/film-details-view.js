@@ -1,5 +1,5 @@
 import {EMOTIONS} from '../const';
-import {getFormatDate, getFormatTime} from '../utils/date';
+import {formatDate, formatDuration} from '../utils/date';
 import SmartView from './smart-view';
 import FilmCommentView from './film-comment-view';
 
@@ -84,11 +84,11 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${getFormatDate(release.date)}</td>
+                <td class="film-details__cell">${formatDate(release.date)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${getFormatTime(runtime)}</td>
+                <td class="film-details__cell">${formatDuration(runtime)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
