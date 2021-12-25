@@ -1,4 +1,4 @@
-import {SORT_TYPE} from '../const';
+import {SortType} from '../const';
 import AbstractView from './abstract-view';
 
 const createSortItemTemplate = (type) => (
@@ -6,7 +6,7 @@ const createSortItemTemplate = (type) => (
 );
 
 const createSortTemplate = () => {
-  const sortList = SORT_TYPE.map(createSortItemTemplate).join('\n');
+  const sortList = Object.values(SortType).map(createSortItemTemplate).join('\n');
   return `<ul class="sort">${sortList}</ul>`;
 };
 

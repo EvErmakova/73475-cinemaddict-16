@@ -1,5 +1,4 @@
-import {EXTRA_FILM_COUNT} from '../const';
-import {updateItem} from '../utils/common';
+import {ActionType, EXTRA_FILM_COUNT, SortType, UpdateType} from '../const';
 import {getSortedFilms} from '../utils/film';
 import {remove, render, RenderPosition} from '../utils/render';
 import FilmsView from '../view/films-view';
@@ -32,17 +31,19 @@ export default class FilmsPresenter {
   #renderedCount = FILM_COUNT_PER_STEP;
   #renderedCards = new Map;
 
-  #sortType = 'default';
+  #sortType = SortType.DEFAULT;
 
   constructor(boardContainer, filmsModel, commentsModel) {
     this.#boardContainer = boardContainer;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+
+    this.#filmsModel.addObserver(this.#handleModelEvent);
   }
 
   get films() {
     const films = this.#filmsModel.films;
-    return this.#sortType === 'default' ? films : getSortedFilms(films, this.#sortType);
+    return this.#sortType === SortType.DEFAULT ? films : getSortedFilms(films, this.#sortType);
   }
 
   get comments() {
@@ -66,6 +67,36 @@ export default class FilmsPresenter {
   #renderSort = () => {
     render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+  }
+
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case ActionType.UPDATE_FILM:
+        this.#filmsModel.update(updateType, update);
+        break;
+      case ActionType.ADD_COMMENT:
+        this.#commentsModel.add(updateType, update);
+        break;
+      case ActionType.DELETE_COMMENT:
+        this.#commentsModel.delete(updateType, update);
+        break;
+    }
+  }
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновит карточку и экстра
+        this.#updateCard(data);
+        break;
+      case UpdateType.MINOR:
+        // - обновить карточку, extra, цифры в фильтре и в profile
+        this.#updateCard(data);
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (фильтр или статистика)
+        break;
+    }
   }
 
   #openDetails = (film) => {
@@ -96,7 +127,7 @@ export default class FilmsPresenter {
     }
   }
 
-  #handleFilmChange = (updatedFilm) => {
+  #updateCard = (updatedFilm) => {
     const filmCard = this.#renderedCards.get(updatedFilm.id);
 
     if (filmCard) {
@@ -144,7 +175,7 @@ export default class FilmsPresenter {
       };
     }
 
-    this.#handleFilmChange(updatedFilm);
+    this.#handleViewAction(ActionType.UPDATE_FILM, UpdateType.MINOR, updatedFilm);
   }
 
   #renderCard = (container, film) => {
@@ -220,7 +251,7 @@ export default class FilmsPresenter {
   }
 
   #renderTopFilms = () => {
-    const topRatedFilms = getSortedFilms([...this.films], 'rating').slice(0, EXTRA_FILM_COUNT);
+    const topRatedFilms = getSortedFilms([...this.#filmsModel.films], 'rating').slice(0, EXTRA_FILM_COUNT);
 
     this.#topFilmsComponent.element.classList.add('films-list--extra');
     render(this.#boardComponent, this.#topFilmsComponent);
@@ -232,7 +263,7 @@ export default class FilmsPresenter {
   }
 
   #renderViralFilms = () => {
-    const viralFilms = getSortedFilms([...this.films], 'comments').slice(0, EXTRA_FILM_COUNT);
+    const viralFilms = getSortedFilms([...this.#filmsModel.films], 'comments').slice(0, EXTRA_FILM_COUNT);
 
     this.#viralFilmsComponent.element.classList.add('films-list--extra');
     render(this.#boardComponent, this.#viralFilmsComponent);
