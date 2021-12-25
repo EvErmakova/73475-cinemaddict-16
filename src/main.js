@@ -25,9 +25,9 @@ commentsModel.comments = comments;
 const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
-const filmsPresenter = new FilmsPresenter(siteMainElement);
+const filmsPresenter = new FilmsPresenter(siteMainElement, filmsModel, commentsModel);
 
 render(siteMainElement, new MainNavigationView(filters));
 render(siteHeaderElement, new ProfileView(alreadyWatchedCount));
-filmsPresenter.init(films, comments);
+filmsPresenter.init();
 render(footerStatisticsElement, new FilmsCounterView(films.length));
