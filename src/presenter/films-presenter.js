@@ -1,5 +1,5 @@
 import {ActionType, EXTRA_FILM_COUNT, SortType, UpdateType} from '../const';
-import {getSortedFilms} from '../utils/film';
+import {getSortedFilms} from '../utils/sorts';
 import {remove, render, RenderPosition} from '../utils/render';
 import FilmsView from '../view/films-view';
 import SortView from '../view/sort-view';
@@ -100,7 +100,7 @@ export default class FilmsPresenter {
         break;
       case UpdateType.MAJOR:
         // - обновить всю доску (фильтр)
-        this.#clearBoard({resetSortType: true});
+        this.#clearBoard({resetRenderedCount: true, resetSortType: true});
         this.#renderBoard();
         break;
     }
