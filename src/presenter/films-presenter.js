@@ -16,15 +16,16 @@ export default class FilmsPresenter {
   #boardContainer = null;
 
   #boardComponent = new FilmsView();
-  #sortComponent = new SortView();
   #moreButtonComponent = new MoreButtonView();
 
-  #noFilmsComponent = null;
   #filmsListComponent = new FilmsListView('All movies. Upcoming');
   #filmsContainerComponent = new FilmsContainerView();
   #topFilmsComponent = new FilmsListView('Top rated');
   #viralFilmsComponent = new FilmsListView('Most commented');
+
   #detailsComponent = null;
+  #noFilmsComponent = null;
+  #sortComponent = null;
 
   #filmsModel = [];
   #commentsModel = [];
@@ -53,6 +54,7 @@ export default class FilmsPresenter {
   init = () => {
     render(this.#boardContainer, this.#boardComponent);
     this.#renderBoard();
+    this.#renderExtraLists();
   }
 
   #handleSortTypeChange = (newSort) => {
@@ -61,12 +63,15 @@ export default class FilmsPresenter {
     }
 
     this.#sortType = newSort;
-    this.#updateFullList();
+    this.#clearBoard();
+    this.#renderBoard();
   }
 
   #renderSort = () => {
-    render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
+    this.#sortComponent = new SortView(this.#sortType);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+
+    render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -94,7 +99,9 @@ export default class FilmsPresenter {
         this.#updateCard(data);
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (фильтр или статистика)
+        // - обновить всю доску (фильтр)
+        this.#clearBoard({resetSortType: true});
+        this.#renderBoard();
         break;
     }
   }
@@ -138,7 +145,8 @@ export default class FilmsPresenter {
       this.#detailsComponent.updateData(updatedFilm);
     }
 
-    this.#updateExtraLists();
+    this.#clearExtraLists();
+    this.#renderExtraLists();
   }
 
   #handleControlClick = (film, controlType) => {
@@ -226,32 +234,22 @@ export default class FilmsPresenter {
 
   #renderFullList = () => {
     const filmsCount = this.films.length;
-    const films = this.films.slice(0, Math.min(filmsCount, FILM_COUNT_PER_STEP));
+    const films = this.films.slice(0, Math.min(filmsCount, this.#renderedCount));
 
     this.#filmsListComponent.element.querySelector('.films-list__title').classList.add('visually-hidden');
-    render(this.#sortComponent, this.#filmsListComponent, RenderPosition.AFTEREND);
+    render(this.#boardComponent, this.#filmsListComponent, RenderPosition.AFTERBEGIN);
     render(this.#filmsListComponent, this.#filmsContainerComponent);
 
     this.#renderCards(films);
 
-    if (filmsCount > FILM_COUNT_PER_STEP) {
+    if (filmsCount > this.#renderedCount) {
       this.#renderMoreButton();
     }
   }
 
-  #updateFullList = () => {
-    this.#renderedCards.forEach((card) => remove(card));
-    this.#renderedCards.clear();
-    this.#renderedCount = FILM_COUNT_PER_STEP;
-
-    remove(this.#moreButtonComponent);
-    remove(this.#filmsListComponent);
-
-    this.#renderFullList();
-  }
-
   #renderTopFilms = () => {
-    const topRatedFilms = getSortedFilms([...this.#filmsModel.films], 'rating').slice(0, EXTRA_FILM_COUNT);
+    const topRatedFilms = getSortedFilms([...this.#filmsModel.films], 'rating')
+      .slice(0, EXTRA_FILM_COUNT);
 
     this.#topFilmsComponent.element.classList.add('films-list--extra');
     render(this.#boardComponent, this.#topFilmsComponent);
@@ -263,7 +261,8 @@ export default class FilmsPresenter {
   }
 
   #renderViralFilms = () => {
-    const viralFilms = getSortedFilms([...this.#filmsModel.films], 'comments').slice(0, EXTRA_FILM_COUNT);
+    const viralFilms = getSortedFilms([...this.#filmsModel.films], 'comments')
+      .slice(0, EXTRA_FILM_COUNT);
 
     this.#viralFilmsComponent.element.classList.add('films-list--extra');
     render(this.#boardComponent, this.#viralFilmsComponent);
@@ -284,11 +283,27 @@ export default class FilmsPresenter {
     }
   }
 
-  #updateExtraLists = () => {
+  #clearExtraLists = () => {
     remove(this.#topFilmsComponent);
     remove(this.#viralFilmsComponent);
+  }
 
-    this.#renderExtraLists();
+  #clearBoard = ({resetRenderedCount = false, resetSortType = false} = {}) => {
+    this.#renderedCards.forEach((card) => remove(card));
+    this.#renderedCards.clear();
+
+    if (resetRenderedCount) {
+      this.#renderedCount = FILM_COUNT_PER_STEP;
+    }
+
+    remove(this.#sortComponent);
+    remove(this.#moreButtonComponent);
+    remove(this.#filmsListComponent);
+    remove(this.#noFilmsComponent);
+
+    if (resetSortType) {
+      this.#sortType = SortType.DEFAULT;
+    }
   }
 
   #renderBoard = () => {
@@ -296,9 +311,7 @@ export default class FilmsPresenter {
       this.#renderNoFilms();
       return;
     }
-
     this.#renderSort();
     this.#renderFullList();
-    this.#renderExtraLists();
   };
 }
