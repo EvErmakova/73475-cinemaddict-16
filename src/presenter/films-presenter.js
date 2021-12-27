@@ -101,15 +101,12 @@ export default class FilmsPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        // Обновит карточку и Экстра
         this.#updateCard(data);
         break;
       case UpdateType.MINOR:
-        // Обновит карточку, экстра, фильтры и профиль
         this.#updateCard(data);
         break;
       case UpdateType.MAJOR:
-        // Обновит список карточек
         this.#clearBoard({resetRenderedCount: true, resetSortType: true});
         this.#renderBoard();
         break;
