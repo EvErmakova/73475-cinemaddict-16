@@ -100,10 +100,16 @@ export default class FilmsPresenter {
 
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
+      case UpdateType.PATCH:
+        // Обновит карточку и Экстра
+        this.#updateCard(data);
+        break;
       case UpdateType.MINOR:
+        // Обновит карточку, экстра, фильтры и профиль
         this.#updateCard(data);
         break;
       case UpdateType.MAJOR:
+        // Обновит список карточек
         this.#clearBoard({resetRenderedCount: true, resetSortType: true});
         this.#renderBoard();
         break;
@@ -208,12 +214,12 @@ export default class FilmsPresenter {
     };
 
     if (comment.comment && comment.emotion) {
-      this.#handleViewAction(ActionType.ADD_COMMENT, UpdateType.MINOR, {film, comment});
+      this.#handleViewAction(ActionType.ADD_COMMENT, UpdateType.PATCH, {film, comment});
     }
   }
 
   #deleteComment = (id) => {
-    this.#handleViewAction(ActionType.DELETE_COMMENT, UpdateType.MINOR, id);
+    this.#handleViewAction(ActionType.DELETE_COMMENT, UpdateType.PATCH, id);
   }
 
   #renderCard = (container, film) => {

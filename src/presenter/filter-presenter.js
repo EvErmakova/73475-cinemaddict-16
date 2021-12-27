@@ -46,8 +46,10 @@ export default class FilterPresenter {
     remove(prevFilterComponent);
   }
 
-  #handleModelEvent = () => {
-    this.init();
+  #handleModelEvent = (updateType) => {
+    if (updateType !== UpdateType.PATCH) {
+      this.init();
+    }
   }
 
   #handleTypeChange = (type) => {

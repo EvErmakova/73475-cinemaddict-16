@@ -1,5 +1,6 @@
 import SmartView from './smart-view';
 import {filter} from '../utils/filters';
+import {UpdateType} from "../const";
 
 const createProfileTemplate = (count) => {
   const getRank = () => {
@@ -37,9 +38,11 @@ export default class ProfileView extends SmartView {
     return createProfileTemplate(this.#count);
   }
 
-  #handleModelEvent = () => {
-    this.#count = filter.history(this.#filmsModel.films).length;
-    this.updateData({});
+  #handleModelEvent = (updateType) => {
+    if (updateType === UpdateType.MINOR) {
+      this.#count = filter.history(this.#filmsModel.films).length;
+      this.updateData({});
+    }
   }
 
   restoreHandlers = () => {}
