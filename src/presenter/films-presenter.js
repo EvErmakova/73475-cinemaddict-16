@@ -1,5 +1,6 @@
-import {ActionType, EXTRA_FILM_COUNT, SortType, UpdateType} from '../const';
+import {ActionType, EXTRA_FILM_COUNT, FilterType, NoTasksTextType, SortType, UpdateType} from '../const';
 import {getSortedFilms} from '../utils/sorts';
+import {filter} from '../utils/filters';
 import {remove, render, RenderPosition} from '../utils/render';
 import FilmsView from '../view/films-view';
 import SortView from '../view/sort-view';
@@ -14,6 +15,9 @@ const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
   #boardContainer = null;
+  #filmsModel = null;
+  #commentsModel = null;
+  #filterModel = null;
 
   #boardComponent = new FilmsView();
   #moreButtonComponent = new MoreButtonView();
@@ -27,24 +31,28 @@ export default class FilmsPresenter {
   #noFilmsComponent = null;
   #sortComponent = null;
 
-  #filmsModel = [];
-  #commentsModel = [];
   #renderedCount = FILM_COUNT_PER_STEP;
   #renderedCards = new Map;
 
   #sortType = SortType.DEFAULT;
+  #filterType = FilterType.ALL;
 
-  constructor(boardContainer, filmsModel, commentsModel) {
+  constructor(boardContainer, filmsModel, commentsModel, filterModel) {
     this.#boardContainer = boardContainer;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
 
     this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get films() {
+    this.#filterType = this.#filterModel.filter;
     const films = this.#filmsModel.films;
-    return this.#sortType === SortType.DEFAULT ? films : getSortedFilms(films, this.#sortType);
+    const filteredFilms = filter[this.#filterType](films);
+
+    return this.#sortType === SortType.DEFAULT ? filteredFilms : getSortedFilms(filteredFilms, this.#sortType);
   }
 
   get comments() {
@@ -208,7 +216,7 @@ export default class FilmsPresenter {
   }
 
   #renderNoFilms = () => {
-    this.#noFilmsComponent = new FilmsListView('There are no movies in our database');
+    this.#noFilmsComponent = new FilmsListView(NoTasksTextType[this.#filterType]);
     render(this.#boardComponent, this.#noFilmsComponent);
   }
 
@@ -299,7 +307,10 @@ export default class FilmsPresenter {
     remove(this.#sortComponent);
     remove(this.#moreButtonComponent);
     remove(this.#filmsListComponent);
-    remove(this.#noFilmsComponent);
+
+    if (this.#noFilmsComponent) {
+      remove(this.#noFilmsComponent);
+    }
 
     if (resetSortType) {
       this.#sortType = SortType.DEFAULT;

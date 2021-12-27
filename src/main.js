@@ -26,7 +26,7 @@ const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
-const filmsPresenter = new FilmsPresenter(siteMainElement, filmsModel, commentsModel);
+const filmsPresenter = new FilmsPresenter(siteMainElement, filmsModel, commentsModel, filterModel);
 const filtersPresenter = new FilterPresenter(siteMainElement, filterModel, filmsModel);
 
 render(siteHeaderElement, new ProfileView(filter.history.length));
