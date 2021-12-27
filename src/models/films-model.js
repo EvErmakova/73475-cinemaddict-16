@@ -21,6 +21,28 @@ export default class FilmsModel extends AbstractObservable {
     return getSortedFilms([...this.films], 'comments').slice(0, EXTRA_FILM_COUNT);
   }
 
+  addComment = (type, {film, comment}) => {
+    const updatedFilm = {
+      ...film,
+      comments: [...film.comments, comment.id]
+    };
+
+    delete updatedFilm.activeEmoji;
+    delete updatedFilm.commentText;
+
+    this.update(type, updatedFilm);
+  }
+
+  deleteComment = (type, id) => {
+    const film = this.films.find(({comments}) => comments.includes(id));
+    const updatedFilm = {
+      ...film,
+      comments: film.comments.filter((item) => item !== id)
+    };
+
+    this.update(type, updatedFilm);
+  }
+
   update = (type, updatedFilm) => {
     const index = this.#films.findIndex((item) => item.id === updatedFilm.id);
 

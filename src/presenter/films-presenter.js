@@ -44,7 +44,6 @@ export default class FilmsPresenter {
     this.#filterModel = filterModel;
 
     this.#filmsModel.addObserver(this.#handleModelEvent);
-    this.#commentsModel.addObserver(this.#handleCommentModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -83,16 +82,18 @@ export default class FilmsPresenter {
     render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
-  #handleViewAction = (actionType, update, updateType) => {
+  #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
       case ActionType.UPDATE_FILM:
         this.#filmsModel.update(updateType, update);
         break;
       case ActionType.ADD_COMMENT:
         this.#commentsModel.add(update);
+        this.#filmsModel.addComment(updateType, update);
         break;
       case ActionType.DELETE_COMMENT:
         this.#commentsModel.delete(update);
+        this.#filmsModel.deleteComment(updateType, update);
         break;
     }
   }
@@ -109,26 +110,12 @@ export default class FilmsPresenter {
     }
   }
 
-  #handleCommentModelEvent = (id) => {
-    const film = this.films.find(({comments}) => comments.includes(id));
-    const index = film.comments.findIndex((item) => item === id);
-    const updatedFilm = {
-      ...film,
-      comments: [
-        ...film.comments.slice(0, index),
-        ...film.comments.slice(index + 1)
-      ]
-    };
-    this.#handleViewAction(ActionType.UPDATE_FILM, updatedFilm, UpdateType.MINOR);
-  }
-
   #openDetails = (film) => {
     if (this.#detailsComponent !== null) {
       this.#closeDetails();
     }
 
-    const filmComments = this.comments.filter((comment) => film.comments.includes(comment.id));
-    this.#detailsComponent = new FilmDetailsView(film, filmComments);
+    this.#detailsComponent = new FilmDetailsView(film, this.#commentsModel.getFilmComment(film));
 
     bodyElement.classList.add('hide-overflow');
     render(bodyElement, this.#detailsComponent);
@@ -140,11 +127,16 @@ export default class FilmsPresenter {
 
   #closeDetails = () => {
     bodyElement.classList.remove('hide-overflow');
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#handleKeydown);
     remove(this.#detailsComponent);
   }
 
-  #onEscKeyDown = (evt) => {
+  #handleKeydown = (evt) => {
+    if (evt.key === 'Enter' && (evt.ctrlKey || evt.metaKey)) {
+      this.#addComment();
+      return;
+    }
+
     if (evt.key === 'Esc' || evt.key === 'Escape') {
       evt.preventDefault();
       this.#closeDetails();
@@ -159,10 +151,9 @@ export default class FilmsPresenter {
     }
 
     if (this.#detailsComponent !== null && this.#detailsComponent.filmData.id === updatedFilm.id) {
-      const filmComments = this.comments.filter((comment) => updatedFilm.comments.includes(comment.id));
       this.#detailsComponent.updateData({
         film: updatedFilm,
-        comments: filmComments
+        comments: this.#commentsModel.getFilmComment(updatedFilm)
       });
     }
 
@@ -204,11 +195,25 @@ export default class FilmsPresenter {
       };
     }
 
-    this.#handleViewAction(ActionType.UPDATE_FILM, updatedFilm, UpdateType.MINOR);
+    this.#handleViewAction(ActionType.UPDATE_FILM, UpdateType.MINOR, updatedFilm);
+  }
+
+  #addComment = () => {
+    const film = this.#detailsComponent.filmData;
+
+    const comment = {
+      id: this.comments[this.comments.length - 1].id + 1,
+      comment: film.commentText,
+      emotion: film.activeEmoji
+    };
+
+    if (comment.comment && comment.emotion) {
+      this.#handleViewAction(ActionType.ADD_COMMENT, UpdateType.MINOR, {film, comment});
+    }
   }
 
   #deleteComment = (id) => {
-    this.#handleViewAction(ActionType.DELETE_COMMENT, id);
+    this.#handleViewAction(ActionType.DELETE_COMMENT, UpdateType.MINOR, id);
   }
 
   #renderCard = (container, film) => {
@@ -217,7 +222,7 @@ export default class FilmsPresenter {
 
     cardComponent.setOpenDetailsHandler(() => {
       this.#openDetails(cardComponent.filmData);
-      document.addEventListener('keydown', this.#onEscKeyDown);
+      document.addEventListener('keydown', this.#handleKeydown);
     });
 
     cardComponent.setControlClickHandler(this.#handleControlClick);

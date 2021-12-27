@@ -233,20 +233,26 @@ export default class FilmDetailsView extends SmartView {
   #emojiClickHandler = (evt) => {
     evt.preventDefault();
     this.updateData({
-      activeEmoji: evt.target.dataset.emoji
+      film: {
+        ...this._data.film,
+        activeEmoji: evt.target.dataset.emoji
+      }
     });
   }
 
   #commentInputHandler = (evt) => {
     evt.preventDefault();
     this.updateData({
-      commentText: evt.target.value,
+      film: {
+        ...this._data.film,
+        commentText: evt.target.value
+      }
     }, true);
   }
 
   static parseFilmToData = (film) => ({
     ...film,
-    activeEmoji: film.activeEmoji,
+    activeEmoji: null,
     commentText: null
   });
 

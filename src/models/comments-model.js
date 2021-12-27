@@ -11,13 +11,15 @@ export default class CommentsModel extends AbstractObservable {
     this.#comments = [...comments];
   }
 
-  add = (newComment) => {
+  getFilmComment = (film) => this.comments.filter((comment) => film.comments.includes(comment.id));
+
+  add = ({comment}) => {
     this.#comments = [
       ...this.#comments,
-      newComment
+      comment
     ];
 
-    this._notify(newComment.id);
+    this._notify();
   }
 
   delete = (id) => {
@@ -32,6 +34,6 @@ export default class CommentsModel extends AbstractObservable {
       ...this.#comments.slice(index + 1),
     ];
 
-    this._notify(id);
+    this._notify();
   }
 }
