@@ -1,3 +1,4 @@
+import he from 'he';
 import {EMOTIONS} from '../const';
 import {formatDate, formatDuration, getTimeFromNow} from '../utils/date';
 import SmartView from './smart-view';
@@ -22,7 +23,7 @@ const createFilmsCommentTemplate = ({id, author, comment, date, emotion}) => (
       <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
     </span>
     <div>
-      <p class="film-details__comment-text">${comment}</p>
+      <p class="film-details__comment-text">${he.encode(comment)}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
         <span class="film-details__comment-day">${getTimeFromNow(date)}</span>
@@ -146,7 +147,7 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
 
             <label class="film-details__comment-label">
               <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"
-              >${commentText ? commentText : ''}</textarea>
+              >${commentText ? he.encode(commentText) : ''}</textarea>
             </label>
 
             <div class="film-details__emoji-list">
