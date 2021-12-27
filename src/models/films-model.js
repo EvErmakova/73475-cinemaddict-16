@@ -1,4 +1,6 @@
 import AbstractObservable from './abstract-observable';
+import {EXTRA_FILM_COUNT} from '../const';
+import {getSortedFilms} from '../utils/sorts';
 
 export default class FilmsModel extends AbstractObservable {
   #films = [];
@@ -9,6 +11,14 @@ export default class FilmsModel extends AbstractObservable {
 
   set films(films) {
     this.#films = [...films];
+  }
+
+  get topFilms() {
+    return getSortedFilms([...this.films], 'rating').slice(0, EXTRA_FILM_COUNT);
+  }
+
+  get viralFilms() {
+    return getSortedFilms([...this.films], 'comments').slice(0, EXTRA_FILM_COUNT);
   }
 
   update = (type, updatedFilm) => {

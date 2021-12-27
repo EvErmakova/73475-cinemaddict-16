@@ -1,4 +1,4 @@
-import {ActionType, EXTRA_FILM_COUNT, FilterType, NoTasksTextType, SortType, UpdateType} from '../const';
+import {ActionType, FilterType, NoTasksTextType, SortType, UpdateType} from '../const';
 import {getSortedFilms} from '../utils/sorts';
 import {filter} from '../utils/filters';
 import {remove, render, RenderPosition} from '../utils/render';
@@ -62,7 +62,7 @@ export default class FilmsPresenter {
   init = () => {
     render(this.#boardContainer, this.#boardComponent);
     this.#renderBoard();
-    this.#renderExtraLists();
+    this.#renderExtraFilms();
   }
 
   #handleSortTypeChange = (newSort) => {
@@ -153,8 +153,8 @@ export default class FilmsPresenter {
       this.#detailsComponent.updateData(updatedFilm);
     }
 
-    this.#clearExtraLists();
-    this.#renderExtraLists();
+    this.#clearExtraFilms();
+    this.#renderExtraFilms();
   }
 
   #handleControlClick = (film, controlType) => {
@@ -255,43 +255,27 @@ export default class FilmsPresenter {
     }
   }
 
-  #renderTopFilms = () => {
-    const topRatedFilms = getSortedFilms([...this.#filmsModel.films], 'rating')
-      .slice(0, EXTRA_FILM_COUNT);
-
-    this.#topFilmsComponent.element.classList.add('films-list--extra');
-    render(this.#boardComponent, this.#topFilmsComponent);
+  #renderExtraList = (component, films) => {
+    component.element.classList.add('films-list--extra');
+    render(this.#boardComponent, component);
 
     const containerComponent = new FilmsContainerView();
-    render(this.#topFilmsComponent, containerComponent);
+    render(component, containerComponent);
 
-    topRatedFilms.forEach((film) => this.#renderCard(containerComponent, film));
+    films.forEach((film) => this.#renderCard(containerComponent, film));
   }
 
-  #renderViralFilms = () => {
-    const viralFilms = getSortedFilms([...this.#filmsModel.films], 'comments')
-      .slice(0, EXTRA_FILM_COUNT);
-
-    this.#viralFilmsComponent.element.classList.add('films-list--extra');
-    render(this.#boardComponent, this.#viralFilmsComponent);
-
-    const containerComponent = new FilmsContainerView();
-    render(this.#viralFilmsComponent, containerComponent);
-
-    viralFilms.forEach((film) => this.#renderCard(containerComponent, film));
-  }
-
-  #renderExtraLists = () => {
+  #renderExtraFilms = () => {
     if (this.films.some(({filmInfo}) => filmInfo.totalRating > 0)) {
-      this.#renderTopFilms();
+      this.#renderExtraList(this.#topFilmsComponent, this.#filmsModel.topFilms);
     }
 
     if (this.films.some(({comments}) => comments.length > 0)) {
-      this.#renderViralFilms();
+      this.#renderExtraList(this.#viralFilmsComponent, this.#filmsModel.viralFilms);
     }
   }
 
-  #clearExtraLists = () => {
+  #clearExtraFilms = () => {
     remove(this.#topFilmsComponent);
     remove(this.#viralFilmsComponent);
   }

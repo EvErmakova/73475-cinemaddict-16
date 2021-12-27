@@ -1,5 +1,4 @@
 import {COMMENTS_COUNT, FILMS_COUNT} from './const';
-import {filter} from './utils/filters';
 import {render} from './utils/render';
 import {generateFilm} from './mock/film';
 import {generateComment} from './mock/comment';
@@ -29,7 +28,7 @@ const footerStatisticsElement = document.querySelector('.footer__statistics');
 const filmsPresenter = new FilmsPresenter(siteMainElement, filmsModel, commentsModel, filterModel);
 const filtersPresenter = new FilterPresenter(siteMainElement, filterModel, filmsModel);
 
-render(siteHeaderElement, new ProfileView(filter.history.length));
+render(siteHeaderElement, new ProfileView(filmsModel));
 filtersPresenter.init();
 filmsPresenter.init();
 render(footerStatisticsElement, new FilmsCounterView(films.length));
