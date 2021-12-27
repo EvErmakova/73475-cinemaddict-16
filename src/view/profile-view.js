@@ -1,6 +1,6 @@
 import SmartView from './smart-view';
+import {UpdateType} from '../const';
 import {filter} from '../utils/filters';
-import {UpdateType} from "../const";
 
 const createProfileTemplate = (count) => {
   const getRank = () => {
