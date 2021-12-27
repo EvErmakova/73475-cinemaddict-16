@@ -44,6 +44,7 @@ export default class FilmsPresenter {
     this.#filterModel = filterModel;
 
     this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#commentsModel.addObserver(this.#handleCommentModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -82,36 +83,43 @@ export default class FilmsPresenter {
     render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = (actionType, update, updateType) => {
     switch (actionType) {
       case ActionType.UPDATE_FILM:
         this.#filmsModel.update(updateType, update);
         break;
       case ActionType.ADD_COMMENT:
-        this.#commentsModel.add(updateType, update);
+        this.#commentsModel.add(update);
         break;
       case ActionType.DELETE_COMMENT:
-        this.#commentsModel.delete(updateType, update);
+        this.#commentsModel.delete(update);
         break;
     }
   }
 
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
-      case UpdateType.PATCH:
-        // - обновит карточку и экстра
-        this.#updateCard(data);
-        break;
       case UpdateType.MINOR:
-        // - обновить карточку, extra, цифры в фильтре и в profile
         this.#updateCard(data);
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (фильтр)
         this.#clearBoard({resetRenderedCount: true, resetSortType: true});
         this.#renderBoard();
         break;
     }
+  }
+
+  #handleCommentModelEvent = (id) => {
+    const film = this.films.find(({comments}) => comments.includes(id));
+    const index = film.comments.findIndex((item) => item === id);
+    const updatedFilm = {
+      ...film,
+      comments: [
+        ...film.comments.slice(0, index),
+        ...film.comments.slice(index + 1)
+      ]
+    };
+    this.#handleViewAction(ActionType.UPDATE_FILM, updatedFilm, UpdateType.MINOR);
   }
 
   #openDetails = (film) => {
@@ -127,6 +135,7 @@ export default class FilmsPresenter {
 
     this.#detailsComponent.setCloseDetailsHandler(this.#closeDetails);
     this.#detailsComponent.setControlClickHandler(this.#handleControlClick);
+    this.#detailsComponent.setDeleteCommentHandler(this.#deleteComment);
   }
 
   #closeDetails = () => {
@@ -150,7 +159,11 @@ export default class FilmsPresenter {
     }
 
     if (this.#detailsComponent !== null && this.#detailsComponent.filmData.id === updatedFilm.id) {
-      this.#detailsComponent.updateData(updatedFilm);
+      const filmComments = this.comments.filter((comment) => updatedFilm.comments.includes(comment.id));
+      this.#detailsComponent.updateData({
+        film: updatedFilm,
+        comments: filmComments
+      });
     }
 
     this.#clearExtraFilms();
@@ -191,7 +204,11 @@ export default class FilmsPresenter {
       };
     }
 
-    this.#handleViewAction(ActionType.UPDATE_FILM, UpdateType.MINOR, updatedFilm);
+    this.#handleViewAction(ActionType.UPDATE_FILM, updatedFilm, UpdateType.MINOR);
+  }
+
+  #deleteComment = (id) => {
+    this.#handleViewAction(ActionType.DELETE_COMMENT, id);
   }
 
   #renderCard = (container, film) => {

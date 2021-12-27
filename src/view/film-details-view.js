@@ -1,7 +1,6 @@
 import {EMOTIONS} from '../const';
-import {formatDate, formatDuration} from '../utils/date';
+import {formatDate, formatDuration, getTimeFromNow} from '../utils/date';
 import SmartView from './smart-view';
-import FilmCommentView from './film-comment-view';
 
 const CONTROL_ACTIVE_CLASS = 'film-details__control-button--active';
 
@@ -15,6 +14,22 @@ const createEmojiItemTemplate = (emoji, activeEmoji) => (
   <label class="film-details__emoji-label" for="emoji-${emoji}">
     <img data-emoji="${emoji}" src="./images/emoji/${emoji}.png" width="30" height="30" alt="emoji">
   </label>`
+);
+
+const createFilmsCommentTemplate = ({id, author, comment, date, emotion}) => (
+  `<li class="film-details__comment">
+    <span class="film-details__comment-emoji">
+      <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
+    </span>
+    <div>
+      <p class="film-details__comment-text">${comment}</p>
+      <p class="film-details__comment-info">
+        <span class="film-details__comment-author">${author}</span>
+        <span class="film-details__comment-day">${getTimeFromNow(date)}</span>
+        <button class="film-details__comment-delete" data-comment="${id}">Delete</button>
+      </p>
+    </div>
+  </li>`
 );
 
 const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji, commentText}, commentsData) => {
@@ -41,7 +56,7 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
 
   const commentsQuantity = comments.length;
 
-  const commentsList = commentsData.map((comment) => new FilmCommentView(comment).template).join('\n');
+  const commentsList = commentsData.map((comment) => createFilmsCommentTemplate(comment)).join('\n');
   const emojiList = EMOTIONS.map((emoji) => createEmojiItemTemplate(emoji, activeEmoji)).join('\n');
 
   return `<section class="film-details">
@@ -145,28 +160,29 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
 };
 
 export default class FilmDetailsView extends SmartView {
-  #comments = [];
-
   constructor(film, comments) {
     super();
-    this._data = FilmDetailsView.parseFilmToData(film);
-    this.#comments = comments;
+    this._data = {
+      film: FilmDetailsView.parseFilmToData(film),
+      comments: comments
+    };
 
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmDetailsTemplate(this._data, this.#comments);
+    return createFilmDetailsTemplate(this._data.film, this._data.comments);
   }
 
   get filmData() {
-    return this._data;
+    return this._data.film;
   }
 
   restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setCloseDetailsHandler(this._callback.closeDetailsClick);
     this.setControlClickHandler(this._callback.controlClick);
+    this.setDeleteCommentHandler(this._callback.deleteCommentClick);
   }
 
   setCloseDetailsHandler = (callback) => {
@@ -178,6 +194,13 @@ export default class FilmDetailsView extends SmartView {
     this._callback.controlClick = callback;
     this.element.querySelectorAll('.film-details__control-button').forEach((control) => {
       control.addEventListener('click', this.#controlClickHandler);
+    });
+  }
+
+  setDeleteCommentHandler = (callback) => {
+    this._callback.deleteCommentClick = callback;
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((button) => {
+      button.addEventListener('click', this.#deleteCommentHandler);
     });
   }
 
@@ -196,7 +219,15 @@ export default class FilmDetailsView extends SmartView {
 
   #controlClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.controlClick(FilmDetailsView.parseDataToFilm(this._data), evt.target.getAttribute('name'));
+    this._callback.controlClick(
+      FilmDetailsView.parseDataToFilm(this._data.film),
+      evt.target.getAttribute('name')
+    );
+  }
+
+  #deleteCommentHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteCommentClick(evt.target.dataset.comment);
   }
 
   #emojiClickHandler = (evt) => {
