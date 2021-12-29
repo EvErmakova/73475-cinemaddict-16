@@ -1,4 +1,5 @@
-import {getRandomArrayItem, getRandomBoolean, getRandomDate, getRandomInteger} from '../utils/common';
+import dayjs from 'dayjs';
+import {getRandomArrayItem, getRandomBoolean, getRandomInteger} from '../utils/common';
 import {COMMENTS_COUNT} from '../const';
 
 const Description = {
@@ -113,9 +114,20 @@ const generateCommentsId = () => {
   return commentsId;
 };
 
+const generateReleaseDate = () => (
+  dayjs().subtract(getRandomInteger(0, 40), 'year').add(getRandomInteger(0, 120), 'day').toDate()
+);
+
+const generateWatchingDate = () => (
+  dayjs().subtract(getRandomInteger(0, 120), 'day').toDate()
+);
+
 let index = 1;
 
 export const generateFilm = () => {
+  const alreadyWatched = getRandomBoolean();
+  const watchingDate = alreadyWatched ? generateWatchingDate() : null;
+
   const filmData = {
     id: index.toString(),
     filmInfo: {
@@ -128,7 +140,7 @@ export const generateFilm = () => {
       writers: generatePersons(getRandomInteger(1, 3)),
       actors: generatePersons(getRandomInteger(1, 5)),
       release: {
-        date: getRandomDate(30, 1),
+        date: generateReleaseDate(),
         releaseCountry: getRandomArrayItem(countries)
       },
       runtime: getRandomInteger(30, 180),
@@ -137,8 +149,8 @@ export const generateFilm = () => {
     },
     userDetails: {
       watchlist: getRandomBoolean(),
-      alreadyWatched: getRandomBoolean(),
-      watchingDate: getRandomDate(5, 1),
+      alreadyWatched,
+      watchingDate,
       favorite: getRandomBoolean()
     },
     comments: generateCommentsId()

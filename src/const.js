@@ -30,10 +30,10 @@ export const FilterType = {
 };
 
 export const NoTasksTextType = {
-  [FilterType.ALL]: 'There are no movies in our database',
-  [FilterType.WATCHLIST]: 'There are no movies to watch now',
-  [FilterType.HISTORY]: 'There are no watched movies now',
-  [FilterType.FAVORITES]: 'There are no favorite movies now'
+  [FilterType.ALL.type]: 'There are no movies in our database',
+  [FilterType.WATCHLIST.type]: 'There are no movies to watch now',
+  [FilterType.HISTORY.type]: 'There are no watched movies now',
+  [FilterType.FAVORITES.type]: 'There are no favorite movies now'
 };
 
 export const ScreenType = {

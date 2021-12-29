@@ -72,6 +72,7 @@ export default class NavigationPresenter {
       this.#screenType = activeItem;
     }
 
+    console.log(prevScreenType, this.#screenType);
     if (prevScreenType !== this.#screenType) {
       this.#handleNavigationClick(this.#screenType);
     }

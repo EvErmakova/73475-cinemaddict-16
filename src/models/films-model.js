@@ -24,6 +24,9 @@ export default class FilmsModel extends AbstractObservable {
 
   get userRank() {
     const count = filter.history(this.films).length;
+    if (count === 0) {
+      return null;
+    }
     if (count <= 10) {
       return 'Novice';
     }
@@ -31,6 +34,10 @@ export default class FilmsModel extends AbstractObservable {
       return 'Fan';
     }
     return 'Movie buff';
+  }
+
+  get watchedFilms() {
+    return [...this.films].filter((film) => film.userDetails.alreadyWatched);
   }
 
   addComment = (type, {film, comment}) => {
