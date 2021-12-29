@@ -1,6 +1,7 @@
 import AbstractObservable from './abstract-observable';
 import {EXTRA_FILM_COUNT} from '../const';
 import {getSortedFilms} from '../utils/sorts';
+import {filter} from '../utils/filters';
 
 export default class FilmsModel extends AbstractObservable {
   #films = [];
@@ -19,6 +20,17 @@ export default class FilmsModel extends AbstractObservable {
 
   get viralFilms() {
     return getSortedFilms([...this.films], 'comments').slice(0, EXTRA_FILM_COUNT);
+  }
+
+  get userRank() {
+    const count = filter.history(this.films).length;
+    if (count <= 10) {
+      return 'Novice';
+    }
+    if (count <= 20) {
+      return 'Fan';
+    }
+    return 'Movie buff';
   }
 
   addComment = (type, {film, comment}) => {
