@@ -35,3 +35,8 @@ export const NoTasksTextType = {
   [FilterType.HISTORY]: 'There are no watched movies now',
   [FilterType.FAVORITES]: 'There are no favorite movies now'
 };
+
+export const ScreenType = {
+  FILMS: 'films',
+  STATS: 'stats'
+};
