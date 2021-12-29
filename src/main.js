@@ -32,7 +32,7 @@ let statsComponent = null;
 const handleNavigationClick = (screenType) => {
   if (screenType === ScreenType.STATS) {
     filmsPresenter.destroy();
-    statsComponent = new StatsView();
+    statsComponent = new StatsView(filmsModel);
     render(siteMainElement, statsComponent);
     return;
   }
