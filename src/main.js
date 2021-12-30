@@ -31,7 +31,6 @@ const filmsPresenter = new FilmsPresenter(siteMainElement, filmsModel, commentsM
 const statsPresenter = new StatsPresenter(siteMainElement, filmsModel);
 
 const handleNavigationClick = (screenType) => {
-  console.log('change screen');
   if (screenType === ScreenType.STATS) {
     filmsPresenter.destroy();
     statsPresenter.init();

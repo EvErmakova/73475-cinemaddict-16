@@ -1,7 +1,7 @@
 import {StatsFilterType, UpdateType} from '../const';
 import {getDuration} from '../utils/date';
 import {remove, render} from '../utils/render';
-import {isFilmWatchedInPeriod} from '../utils/stats';
+import {getGenresStats, isFilmWatchedInPeriod} from '../utils/stats';
 import StatsView from '../view/stats-view';
 
 export default class StatsPresenter {
@@ -28,20 +28,22 @@ export default class StatsPresenter {
 
   get stats() {
     const films = this.films.filter((film) => isFilmWatchedInPeriod(film, this.#activeFilter));
-    let duration = 0;
+    const genresStats = getGenresStats(films);
+    let totalDuration = 0;
 
     films.forEach((film) => {
-      duration += film.filmInfo.runtime;
+      totalDuration += film.filmInfo.runtime;
     });
 
-    duration = getDuration(duration);
+    totalDuration = getDuration(totalDuration);
 
     return {
       rank: this.#filmsModel.userRank,
       activeFilter: this.#activeFilter,
       totalCount: films.length,
-      totalDuration: duration,
-      topGenre: 'Drama'
+      totalDuration,
+      topGenre: genresStats ? [...genresStats.keys()][0] : null,
+      genresStats
     };
   }
 
