@@ -1,16 +1,15 @@
 import {COMMENTS_COUNT, FILMS_COUNT, ScreenType} from './const';
-import {remove, render} from './utils/render';
+import {render} from './utils/render';
 import {generateFilm} from './mock/film';
 import {generateComment} from './mock/comment';
 import FilmsModel from './models/films-model';
 import CommentsModel from './models/comments-model';
 import FilterModel from './models/filter-model';
 import ProfileView from './view/profile-view';
-import StatsView from './view/stats-view';
 import FilmsCounterView from './view/films-counter-view';
 import FilmsPresenter from './presenter/films-presenter';
 import NavigationPresenter from './presenter/navigation-presenter';
-import StatsPresenter from "./presenter/stats-presenter";
+import StatsPresenter from './presenter/stats-presenter';
 
 const films = Array.from({length: FILMS_COUNT}, generateFilm);
 const comments = Array.from({length: COMMENTS_COUNT}, generateComment);
