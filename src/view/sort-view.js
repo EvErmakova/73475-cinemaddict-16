@@ -1,18 +1,31 @@
-import {SORT_TYPE} from '../const';
+import {SortType} from '../const';
 import AbstractView from './abstract-view';
 
-const createSortItemTemplate = (type) => (
-  `<li><a href="#" class="sort__button" data-sort-type="${type}">Sort by ${type}</a></li>`
+const createSortItemTemplate = (type, isActive) => (
+  `<li>
+    <a href="#" class="sort__button ${isActive ? 'sort__button--active' : '' }" data-sort-type="${type}">
+        Sort by ${type}
+    </a>
+  </li>`
 );
 
-const createSortTemplate = () => {
-  const sortList = SORT_TYPE.map(createSortItemTemplate).join('\n');
+const createSortTemplate = (activeType) => {
+  const sortList = Object.values(SortType).map((type) => (
+    createSortItemTemplate(type, type === activeType)
+  )).join('\n');
   return `<ul class="sort">${sortList}</ul>`;
 };
 
 export default class SortView extends AbstractView {
+  #activeType = null;
+
+  constructor(activeType) {
+    super();
+    this.#activeType = activeType;
+  }
+
   get template() {
-    return createSortTemplate();
+    return createSortTemplate(this.#activeType);
   }
 
   setSortTypeChangeHandler = (callback) => {
