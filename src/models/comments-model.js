@@ -42,4 +42,9 @@ export default class CommentsModel extends AbstractObservable {
 
     this._notify();
   }
+
+  #adaptToClient = (comment) => ({
+    ...comment,
+    date: new Date(comment.date)
+  });
 }

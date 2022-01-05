@@ -11,7 +11,9 @@ export default class FilmsModel extends AbstractObservable {
     super();
     this.#apiService = apiService;
 
-    this.#apiService.films.then((films) => console.log(films));
+    this.#apiService.films.then((films) => {
+      console.log(films.map(this.#adaptToClient));
+    });
   }
 
   get films() {
@@ -85,4 +87,38 @@ export default class FilmsModel extends AbstractObservable {
 
     this._notify(type, updatedFilm);
   }
+
+  #adaptToClient = (film) => {
+    const userDetails = film['user_details'];
+    const filmInfo = film['film_info'];
+
+    const adaptedFilm = {
+      id: film.id,
+      filmInfo: {
+        ...filmInfo,
+        alternativeTitle: filmInfo['alternative_title'],
+        totalRating: filmInfo['total_rating'],
+        ageRating: filmInfo['age_rating'],
+        release: {
+          date: new Date(filmInfo['release']['date']),
+          releaseCountry: filmInfo['release']['release_country']
+        },
+      },
+      userDetails: {
+        ...userDetails,
+        alreadyWatched: userDetails['already_watched'],
+        watchingDate: userDetails['watching_date'] !== null ? new Date(userDetails['watching_date']) : null,
+      },
+      comments: film.comments
+    };
+
+    delete adaptedFilm.filmInfo['alternative_title'];
+    delete adaptedFilm.filmInfo['total_rating'];
+    delete adaptedFilm.filmInfo['age_rating'];
+    delete adaptedFilm.filmInfo.release['release_country'];
+    delete adaptedFilm.userDetails['already_watched'];
+    delete adaptedFilm.userDetails['watching_date'];
+
+    return adaptedFilm;
+  };
 }
