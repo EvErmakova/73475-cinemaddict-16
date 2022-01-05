@@ -4,7 +4,15 @@ import {getSortedFilms} from '../utils/sorts';
 import {filter} from '../utils/filters';
 
 export default class FilmsModel extends AbstractObservable {
+  #apiService = null;
   #films = [];
+
+  constructor(apiService) {
+    super();
+    this.#apiService = apiService;
+
+    this.#apiService.films.then((films) => console.log(films));
+  }
 
   get films() {
     return [...this.#films];
