@@ -9,12 +9,14 @@ import FilmsListView from '../view/films-list-view';
 import FilmsContainerView from '../view/films-container-view';
 import FilmCardView from '../view/film-card-view';
 import FilmDetailsView from '../view/film-details-view';
+import CommentsModel from "../models/comments-model";
 
 const bodyElement = document.body;
 const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
   #boardContainer = null;
+  #apiService = null;
   #filmsModel = null;
   #commentsModel = null;
   #filterModel = null;
@@ -26,6 +28,7 @@ export default class FilmsPresenter {
   #filmsContainerComponent = new FilmsContainerView();
   #topFilmsComponent = new FilmsListView('Top rated');
   #viralFilmsComponent = new FilmsListView('Most commented');
+  #loadingComponent = new FilmsListView('Loading...');
 
   #detailsComponent = null;
   #noFilmsComponent = null;
@@ -36,11 +39,12 @@ export default class FilmsPresenter {
 
   #sortType = SortType.DEFAULT;
   #filterType = FilterType.ALL;
+  #isLoading = true;
 
-  constructor(boardContainer, filmsModel, commentsModel, filterModel) {
+  constructor(boardContainer, apiService, filmsModel, filterModel) {
     this.#boardContainer = boardContainer;
+    this.#apiService = apiService;
     this.#filmsModel = filmsModel;
-    this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
   }
 
@@ -125,6 +129,11 @@ export default class FilmsPresenter {
         this.#clearBoard({resetRenderedCount: true, resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   }
 
@@ -132,17 +141,25 @@ export default class FilmsPresenter {
     if (this.#detailsComponent.filmData.id === updatedFilm.id) {
       this.#detailsComponent.updateData({
         film: updatedFilm,
-        comments: this.#commentsModel.getFilmComment(updatedFilm)
+        comments: this.#commentsModel.getComments(updatedFilm.id)
       });
     }
   }
 
-  #openDetails = (film) => {
+  #openDetails = async (film) => {
     if (this.#detailsComponent !== null) {
       this.#closeDetails();
     }
 
-    this.#detailsComponent = new FilmDetailsView(film, this.#commentsModel.getFilmComment(film));
+    this.#commentsModel = new CommentsModel(this.#apiService);
+    let comments = [];
+    try {
+      comments = await this.#commentsModel.getComments(film.id);
+    } catch (err) {
+      comments = [];
+    }
+
+    this.#detailsComponent = new FilmDetailsView(film, comments);
 
     bodyElement.classList.add('hide-overflow');
     render(bodyElement, this.#detailsComponent);
@@ -266,6 +283,10 @@ export default class FilmsPresenter {
     render(this.#boardComponent, this.#noFilmsComponent);
   }
 
+  #renderLoading = () => {
+    render(this.#boardComponent, this.#loadingComponent);
+  }
+
   #handleMoreButtonClick = () => {
     const filmsCount = this.films.length;
     const newRenderedCount = Math.min(filmsCount, this.#renderedCount + FILM_COUNT_PER_STEP);
@@ -337,6 +358,7 @@ export default class FilmsPresenter {
     remove(this.#sortComponent);
     remove(this.#moreButtonComponent);
     remove(this.#filmsListComponent);
+    remove(this.#loadingComponent);
 
     if (this.#noFilmsComponent) {
       remove(this.#noFilmsComponent);
@@ -348,10 +370,16 @@ export default class FilmsPresenter {
   }
 
   #renderBoard = () => {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.films.length === 0) {
       this.#renderNoFilms();
       return;
     }
+
     this.#renderSort();
     this.#renderFullList();
   };

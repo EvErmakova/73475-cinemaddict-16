@@ -9,15 +9,11 @@ export default class CommentsModel extends AbstractObservable {
     this.#apiService = apiService;
   }
 
-  get comments() {
-    return [...this.#comments];
+  getComments = async (filmId) => {
+    const comments = await this.#apiService.getComments(filmId);
+    this.#comments = comments.map(this.#adaptToClient);
+    return this.#comments;
   }
-
-  set comments(comments) {
-    this.#comments = [...comments];
-  }
-
-  getFilmComment = (film) => this.comments.filter((comment) => film.comments.includes(comment.id));
 
   add = ({comment}) => {
     this.#comments = [

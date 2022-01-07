@@ -32,7 +32,7 @@ export default class ApiService {
   }
 
   getComments = async (filmId) => (
-    this.#load({url: `comments/${filmId}`})
+    this.#load({url: `comments/${filmId}`}).then(ApiService.parseResponse)
   );
 
   addComment = async (filmId, comment) => {
@@ -45,7 +45,7 @@ export default class ApiService {
 
     const parsedResponse = await ApiService.parseResponse(response);
     return parsedResponse;
-  };
+  }
 
   deleteComment = async (commentId) => (
     this.#load({url: `comments/${commentId}`})
@@ -98,7 +98,7 @@ export default class ApiService {
     delete adaptedFilm['user_details'].watchingDate;
 
     return adaptedFilm;
-  };
+  }
 
   #adaptCommentToServer = (comment) => ({
     ...comment,

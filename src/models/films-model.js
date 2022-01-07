@@ -1,5 +1,5 @@
 import AbstractObservable from './abstract-observable';
-import {EXTRA_FILM_COUNT} from '../const';
+import {EXTRA_FILM_COUNT, UpdateType} from '../const';
 import {getSortedFilms} from '../utils/sorts';
 import {filter} from '../utils/filters';
 
@@ -10,18 +10,21 @@ export default class FilmsModel extends AbstractObservable {
   constructor(apiService) {
     super();
     this.#apiService = apiService;
-
-    this.#apiService.films.then((films) => {
-      console.log(films.map(this.#adaptToClient));
-    });
   }
 
   get films() {
     return [...this.#films];
   }
 
-  set films(films) {
-    this.#films = [...films];
+  init = async () => {
+    try {
+      const films = await this.#apiService.films;
+      this.#films = films.map(this.#adaptToClient);
+    } catch (err) {
+      this.#films = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   get topFilms() {
@@ -120,5 +123,5 @@ export default class FilmsModel extends AbstractObservable {
     delete adaptedFilm.userDetails['watching_date'];
 
     return adaptedFilm;
-  };
+  }
 }

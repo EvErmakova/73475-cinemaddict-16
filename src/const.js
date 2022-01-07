@@ -1,5 +1,3 @@
-export const FILMS_COUNT = 20;
-export const COMMENTS_COUNT = 80;
 export const EXTRA_FILM_COUNT = 2;
 
 export const API_URL = 'https://16.ecmascript.pages.academy/cinemaddict';
@@ -23,6 +21,7 @@ export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT'
 };
 
 export const FilterType = {
