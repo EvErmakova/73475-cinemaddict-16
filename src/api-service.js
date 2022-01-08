@@ -21,7 +21,7 @@ export default class ApiService {
 
   updateFilm = async (film) => {
     const response = await this.#load({
-      url: `'movies'/${film.id}`,
+      url: `movies/${film.id}`,
       method: Method.PUT,
       body: JSON.stringify(this.#adaptFilmToServer(film)),
       headers: new Headers({'Content-Type': 'application/json'})
@@ -79,7 +79,7 @@ export default class ApiService {
         'age_rating': filmInfo.ageRating,
         release: {
           date: filmInfo.release.date.toISOString(),
-          'release_country': filmInfo.releaseCountry
+          'release_country': filmInfo.release.releaseCountry
         }
       },
       'user_details': {
@@ -93,7 +93,7 @@ export default class ApiService {
     delete adaptedFilm['film_info'].alternativeTitle;
     delete adaptedFilm['film_info'].totalRating;
     delete adaptedFilm['film_info'].ageRating;
-    delete adaptedFilm['film_info'].releaseCountry;
+    delete adaptedFilm['film_info'].release.releaseCountry;
     delete adaptedFilm['user_details'].alreadyWatched;
     delete adaptedFilm['user_details'].watchingDate;
 

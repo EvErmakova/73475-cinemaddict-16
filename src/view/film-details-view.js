@@ -57,7 +57,6 @@ const createFilmDetailsTemplate = ({filmInfo, userDetails, comments, activeEmoji
 
   const commentsQuantity = comments.length;
 
-  console.log(commentsData);
   const commentsList = commentsData.map((comment) => createFilmsCommentTemplate(comment)).join('\n');
   const emojiList = EMOTIONS.map((emoji) => createEmojiItemTemplate(emoji, activeEmoji)).join('\n');
 
