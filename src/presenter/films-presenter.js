@@ -1,4 +1,4 @@
-import {ActionType, FilterType, NoTasksTextType, SortType, UpdateType} from '../const';
+import {ActionType, FilterType, NoTasksTextType, SortType, State, UpdateType} from '../const';
 import {getSortedFilms} from '../utils/sorts';
 import {filter} from '../utils/filters';
 import {remove, render, RenderPosition} from '../utils/render';
@@ -91,16 +91,50 @@ export default class FilmsPresenter {
     render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #resetFormState = () => {
+    this.#detailsComponent.updateData({
+      isDisabled: false,
+      deletingCommentId: null,
+    });
+  };
+
+  #setViewState = (state, update) => {
+    switch (state) {
+      case State.SAVING:
+        this.#detailsComponent.updateData({
+          isDisabled: true,
+        });
+        break;
+      case State.DELETING:
+        this.#detailsComponent.updateData({
+          deletingCommentId: update
+        });
+        break;
+    }
+  }
+
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case ActionType.UPDATE_FILM:
         this.#filmsModel.update(updateType, update);
         break;
       case ActionType.ADD_COMMENT:
-        this.#commentsModel.add(updateType, update);
+        this.#setViewState(State.SAVING);
+        try {
+          await this.#commentsModel.add(updateType, update);
+        } catch (err) {
+          const shakeElement = this.#detailsComponent.element.querySelector('.film-details__new-comment');
+          this.#detailsComponent.shake(shakeElement, this.#resetFormState);
+        }
         break;
       case ActionType.DELETE_COMMENT:
-        this.#commentsModel.delete(updateType, update);
+        this.#setViewState(State.DELETING, update);
+        try {
+          await this.#commentsModel.delete(updateType, update);
+        } catch (err) {
+          const shakeElement = document.getElementById(`${update}`);
+          this.#detailsComponent.shake(shakeElement, this.#resetFormState);
+        }
         break;
     }
   }

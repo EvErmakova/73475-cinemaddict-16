@@ -50,3 +50,8 @@ export const StatsFilterType = {
   MONTH: {type: 'month', name: 'Month'},
   YEAR: {type: 'year', name: 'Year'}
 };
+
+export const State = {
+  SAVING: 'SAVING',
+  DELETING: 'DELETING'
+};
