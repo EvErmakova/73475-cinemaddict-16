@@ -2,7 +2,6 @@ import {ActionType, FilterType, NoTasksTextType, SortType, UpdateType} from '../
 import {getSortedFilms} from '../utils/sorts';
 import {filter} from '../utils/filters';
 import {remove, render, RenderPosition} from '../utils/render';
-import CommentsModel from '../models/comments-model';
 import FilmsView from '../view/films-view';
 import SortView from '../view/sort-view';
 import MoreButtonView from '../view/more-button-view';
@@ -16,7 +15,6 @@ const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
   #boardContainer = null;
-  #apiService = null;
   #filmsModel = null;
   #commentsModel = null;
   #filterModel = null;
@@ -41,9 +39,9 @@ export default class FilmsPresenter {
   #filterType = FilterType.ALL;
   #isLoading = true;
 
-  constructor(boardContainer, apiService, filmsModel, filterModel) {
+  constructor(boardContainer, filmsModel, commentsModel, filterModel) {
     this.#boardContainer = boardContainer;
-    this.#apiService = apiService;
+    this.#commentsModel = commentsModel;
     this.#filmsModel = filmsModel;
     this.#filterModel = filterModel;
   }
@@ -76,17 +74,6 @@ export default class FilmsPresenter {
     this.#filterModel.removeObserver(this.#handleModelEvent);
   }
 
-  #getComments = async (filmId) => {
-    let comments = [];
-    try {
-      comments = await this.#commentsModel.getComments(filmId);
-    } catch (err) {
-      comments = [];
-      this.#apiService.catchError(err);
-    }
-    return comments;
-  }
-
   #handleSortTypeChange = (newSort) => {
     if (this.#sortType === newSort) {
       return;
@@ -110,12 +97,10 @@ export default class FilmsPresenter {
         this.#filmsModel.update(updateType, update);
         break;
       case ActionType.ADD_COMMENT:
-        this.#commentsModel.add(update);
-        this.#filmsModel.addComment(updateType, update);
+        this.#commentsModel.add(updateType, update);
         break;
       case ActionType.DELETE_COMMENT:
-        this.#commentsModel.delete(update);
-        this.#filmsModel.deleteComment(updateType, update);
+        this.#commentsModel.delete(updateType, update);
         break;
     }
   }
@@ -148,7 +133,7 @@ export default class FilmsPresenter {
     if (this.#detailsComponent.filmData.id === updatedFilm.id) {
       this.#detailsComponent.updateData({
         film: updatedFilm,
-        comments: await this.#getComments(updatedFilm.id)
+        comments: await this.#commentsModel.getComments(updatedFilm.id)
       });
     }
   }
@@ -158,9 +143,9 @@ export default class FilmsPresenter {
       this.#closeDetails();
     }
 
-    this.#commentsModel = new CommentsModel(this.#apiService);
+    const comments = await this.#commentsModel.getComments(film.id);
 
-    this.#detailsComponent = new FilmDetailsView(film, await this.#getComments(film.id));
+    this.#detailsComponent = new FilmDetailsView(film, comments);
     bodyElement.classList.add('hide-overflow');
     render(bodyElement, this.#detailsComponent);
 
@@ -241,6 +226,7 @@ export default class FilmsPresenter {
 
   #addComment = () => {
     const film = this.#detailsComponent.filmData;
+    const filmId = film.id;
 
     const comment = {
       comment: film.commentText,
@@ -248,7 +234,7 @@ export default class FilmsPresenter {
     };
 
     if (comment.comment && comment.emotion) {
-      this.#handleViewAction(ActionType.ADD_COMMENT, UpdateType.PATCH, {film, comment});
+      this.#handleViewAction(ActionType.ADD_COMMENT, UpdateType.PATCH, {filmId, comment});
     }
   }
 

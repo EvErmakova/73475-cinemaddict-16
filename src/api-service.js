@@ -37,9 +37,9 @@ export default class ApiService {
 
   addComment = async (filmId, comment) => {
     const response = await this.#load({
-      url: `comment/${filmId}`,
+      url: `comments/${filmId}`,
       method: Method.POST,
-      body: JSON.stringify(this.#adaptCommentToServer(comment)),
+      body: JSON.stringify(comment),
       headers: new Headers({'Content-Type': 'application/json'})
     });
 
@@ -48,7 +48,10 @@ export default class ApiService {
   }
 
   deleteComment = async (commentId) => (
-    this.#load({url: `comments/${commentId}`})
+    await this.#load({
+      url: `comments/${commentId}`,
+      method: Method.DELETE
+    })
   );
 
   #load = async ({
@@ -99,11 +102,6 @@ export default class ApiService {
 
     return adaptedFilm;
   }
-
-  #adaptCommentToServer = (comment) => ({
-    ...comment,
-    date: comment.date.toISOString()
-  });
 
   static parseResponse = (response) => response.json();
 

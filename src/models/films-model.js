@@ -53,16 +53,13 @@ export default class FilmsModel extends AbstractObservable {
     return [...this.films].filter((film) => film.userDetails.alreadyWatched);
   }
 
-  addComment = (type, {film, comment}) => {
+  addComment = (type, filmId, comments) => {
     const updatedFilm = {
-      ...film,
-      comments: [...film.comments, comment.id]
+      ...this.films.find(({id}) => id === filmId),
+      comments: comments
     };
 
-    delete updatedFilm.activeEmoji;
-    delete updatedFilm.commentText;
-
-    this.update(type, updatedFilm);
+    this._notify(type, updatedFilm);
   }
 
   deleteComment = (type, id) => {
@@ -72,7 +69,7 @@ export default class FilmsModel extends AbstractObservable {
       comments: film.comments.filter((item) => item !== id)
     };
 
-    this.update(type, updatedFilm);
+    this._notify(type, updatedFilm);
   }
 
   update = async (type, update) => {
