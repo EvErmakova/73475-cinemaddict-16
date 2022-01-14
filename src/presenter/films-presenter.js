@@ -61,13 +61,11 @@ export default class FilmsPresenter {
     this.#filterModel.addObserver(this.#handleModelEvent);
 
     this.#renderBoard();
-    this.#renderExtraFilms();
   }
 
   destroy = () => {
     this.#clearBoard({resetRenderedCount: true, resetSortType: true});
-    this.#clearExtraFilms();
-
+    remove(this.#loadingComponent);
     remove(this.#boardComponent);
 
     this.#filmsModel.removeObserver(this.#handleModelEvent);
@@ -80,8 +78,8 @@ export default class FilmsPresenter {
     }
 
     this.#sortType = newSort;
-    this.#clearBoard();
-    this.#renderBoard();
+    this.#clearFullList();
+    this.#renderFullList();
   }
 
   #renderSort = () => {
@@ -116,7 +114,7 @@ export default class FilmsPresenter {
   #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case ActionType.UPDATE_FILM:
-        this.#filmsModel.update(updateType, update);
+        this.#filmsModel.updateFilm(updateType, update);
         break;
       case ActionType.ADD_COMMENT:
         this.#setViewState(State.SAVING);
@@ -333,6 +331,9 @@ export default class FilmsPresenter {
     const films = this.films.slice(0, Math.min(filmsCount, this.#renderedCount));
 
     this.#filmsListComponent.element.querySelector('.films-list__title').classList.add('visually-hidden');
+
+    this.#renderSort();
+
     render(this.#boardComponent, this.#filmsListComponent, RenderPosition.AFTERBEGIN);
     render(this.#filmsListComponent, this.#filmsContainerComponent);
 
@@ -368,7 +369,7 @@ export default class FilmsPresenter {
     remove(this.#viralFilmsComponent);
   }
 
-  #clearBoard = ({resetRenderedCount = false, resetSortType = false} = {}) => {
+  #clearFullList = ({resetRenderedCount = false} = {}) => {
     this.#renderedCards.forEach((card) => remove(card));
     this.#renderedCards.clear();
 
@@ -379,7 +380,11 @@ export default class FilmsPresenter {
     remove(this.#sortComponent);
     remove(this.#moreButtonComponent);
     remove(this.#filmsListComponent);
-    remove(this.#loadingComponent);
+  }
+
+  #clearBoard = ({resetRenderedCount = false, resetSortType = false} = {}) => {
+    this.#clearFullList({resetRenderedCount: resetRenderedCount});
+    this.#clearExtraFilms();
 
     if (this.#noFilmsComponent) {
       remove(this.#noFilmsComponent);
@@ -401,7 +406,7 @@ export default class FilmsPresenter {
       return;
     }
 
-    this.#renderSort();
     this.#renderFullList();
+    this.#renderExtraFilms();
   };
 }
