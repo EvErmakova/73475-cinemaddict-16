@@ -42,9 +42,6 @@ export default class FilmsPresenter {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
-
-    this.#filmsModel.addObserver(this.#handleModelEvent);
-    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get films() {
@@ -61,8 +58,22 @@ export default class FilmsPresenter {
 
   init = () => {
     render(this.#boardContainer, this.#boardComponent);
+
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
+
     this.#renderBoard();
     this.#renderExtraFilms();
+  }
+
+  destroy = () => {
+    this.#clearBoard({resetRenderedCount: true, resetSortType: true});
+    this.#clearExtraFilms();
+
+    remove(this.#boardComponent);
+
+    this.#filmsModel.removeObserver(this.#handleModelEvent);
+    this.#filterModel.removeObserver(this.#handleModelEvent);
   }
 
   #handleSortTypeChange = (newSort) => {
@@ -104,12 +115,25 @@ export default class FilmsPresenter {
         this.#updateCard(data);
         break;
       case UpdateType.MINOR:
-        this.#updateCard(data);
+        this.#clearBoard();
+        this.#renderBoard();
+        if (this.#detailsComponent !== null) {
+          this.#updateDetails(data);
+        }
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({resetRenderedCount: true, resetSortType: true});
         this.#renderBoard();
         break;
+    }
+  }
+
+  #updateDetails = (updatedFilm) => {
+    if (this.#detailsComponent.filmData.id === updatedFilm.id) {
+      this.#detailsComponent.updateData({
+        film: updatedFilm,
+        comments: this.#commentsModel.getFilmComment(updatedFilm)
+      });
     }
   }
 
@@ -153,11 +177,8 @@ export default class FilmsPresenter {
       filmCard.updateData(updatedFilm);
     }
 
-    if (this.#detailsComponent !== null && this.#detailsComponent.filmData.id === updatedFilm.id) {
-      this.#detailsComponent.updateData({
-        film: updatedFilm,
-        comments: this.#commentsModel.getFilmComment(updatedFilm)
-      });
+    if (this.#detailsComponent !== null) {
+      this.#updateDetails(updatedFilm);
     }
 
     this.#clearExtraFilms();

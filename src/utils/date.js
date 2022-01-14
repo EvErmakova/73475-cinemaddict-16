@@ -9,9 +9,17 @@ export const formatDate = (date) => dayjs(date).format('D MMMM YYYY');
 
 export const getYear = (date) => dayjs(date).format('YYYY');
 
-export const formatDuration = (minutes) => {
+export const getDuration = (minutes) => {
   const time = dayjs.duration(minutes, 'minutes');
-  return minutes < 60 ? time.format('m[m]') : time.format('H[h] m[m]');
+  return {
+    hours: time.format('H'),
+    minutes: time.format('m')
+  };
+};
+
+export const formatDuration = (minutes) => {
+  const time = getDuration(minutes);
+  return minutes < 60 ? `${time.minutes}m` : `${time.hours}h ${time.minutes}m`;
 };
 
 export const getTimeFromNow = (date) => dayjs(date).fromNow();
