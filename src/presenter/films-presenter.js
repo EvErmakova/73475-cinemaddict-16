@@ -167,7 +167,9 @@ export default class FilmsPresenter {
     if (this.#detailsComponent.filmData.id === updatedFilm.id) {
       this.#detailsComponent.updateData({
         film: updatedFilm,
-        comments: await this.#commentsModel.getComments(updatedFilm.id)
+        comments: await this.#commentsModel.getComments(updatedFilm.id),
+        isDisabled: false,
+        deletingCommentId: null
       });
     }
   }
