@@ -146,12 +146,9 @@ const createFilmDetailsTemplate = ({
                 <td class="film-details__cell">${release.releaseCountry}</td>
               </tr>
               <tr class="film-details__row">
-                <td class="film-details__term">Genres</td>
+                <td class="film-details__term">${genre.length > 1 ? 'Genres': 'Genre'}</td>
                 <td class="film-details__cell">
                   ${genres}
-                  <span class="film-details__genre">Drama</span>
-                  <span class="film-details__genre">Film-Noir</span>
-                  <span class="film-details__genre">Mystery</span>
                 </td>
               </tr>
             </table>
