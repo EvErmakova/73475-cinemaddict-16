@@ -1,6 +1,7 @@
-export const FILMS_COUNT = 20;
-export const COMMENTS_COUNT = 80;
 export const EXTRA_FILM_COUNT = 2;
+
+export const API_URL = 'https://16.ecmascript.pages.academy/cinemaddict';
+export const API_AUTHORIZATION = 'Basic gve8r7g387gvn';
 
 export const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -20,6 +21,7 @@ export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT'
 };
 
 export const FilterType = {
@@ -47,4 +49,9 @@ export const StatsFilterType = {
   WEEK: {type: 'week', name: 'Week'},
   MONTH: {type: 'month', name: 'Month'},
   YEAR: {type: 'year', name: 'Year'}
+};
+
+export const State = {
+  SAVING: 'SAVING',
+  DELETING: 'DELETING'
 };

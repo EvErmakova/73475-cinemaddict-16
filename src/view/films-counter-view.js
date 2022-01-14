@@ -7,9 +7,9 @@ const createFilmsCounterTemplate = (count) => (
 export default class FilmsCounterView extends AbstractView {
   #count = null;
 
-  constructor(count) {
+  constructor(filmsModel) {
     super();
-    this.#count = count;
+    this.#count = filmsModel.films.length;
   }
 
   get template() {

@@ -27,7 +27,6 @@ export default class SmartView extends AbstractView {
     parent.replaceChild(newElement, prevElement);
     this.element.scrollTop = scrollPosition;
 
-
     this.restoreHandlers();
   }
 

@@ -1,17 +1,30 @@
 import AbstractObservable from './abstract-observable';
-import {EXTRA_FILM_COUNT} from '../const';
+import {EXTRA_FILM_COUNT, UpdateType} from '../const';
 import {getSortedFilms} from '../utils/sorts';
 import {filter} from '../utils/filters';
 
 export default class FilmsModel extends AbstractObservable {
+  #apiService = null;
   #films = [];
+
+  constructor(apiService) {
+    super();
+    this.#apiService = apiService;
+  }
 
   get films() {
     return [...this.#films];
   }
 
-  set films(films) {
-    this.#films = [...films];
+  init = async () => {
+    try {
+      const films = await this.#apiService.films;
+      this.#films = films.map(this.#adaptToClient);
+    } catch (err) {
+      this.#films = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   get topFilms() {
@@ -40,16 +53,13 @@ export default class FilmsModel extends AbstractObservable {
     return [...this.films].filter((film) => film.userDetails.alreadyWatched);
   }
 
-  addComment = (type, {film, comment}) => {
+  addComment = (type, filmId, comments) => {
     const updatedFilm = {
-      ...film,
-      comments: [...film.comments, comment.id]
+      ...this.films.find(({id}) => id === filmId),
+      comments: comments
     };
 
-    delete updatedFilm.activeEmoji;
-    delete updatedFilm.commentText;
-
-    this.update(type, updatedFilm);
+    this._notify(type, updatedFilm);
   }
 
   deleteComment = (type, id) => {
@@ -59,22 +69,61 @@ export default class FilmsModel extends AbstractObservable {
       comments: film.comments.filter((item) => item !== id)
     };
 
-    this.update(type, updatedFilm);
+    this._notify(type, updatedFilm);
   }
 
-  update = (type, updatedFilm) => {
-    const index = this.#films.findIndex((item) => item.id === updatedFilm.id);
+  update = async (type, update) => {
+    const index = this.#films.findIndex((item) => item.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting film');
     }
 
-    this.#films = [
-      ...this.#films.slice(0, index),
-      updatedFilm,
-      ...this.#films.slice(index + 1),
-    ];
+    try {
+      const response = await this.#apiService.updateFilm(update);
+      const updatedFilm = this.#adaptToClient(response);
+      this.#films = [
+        ...this.#films.slice(0, index),
+        updatedFilm,
+        ...this.#films.slice(index + 1),
+      ];
+      this._notify(type, updatedFilm);
+    } catch (err) {
+      throw new Error('Can\'t update film');
+    }
+  }
 
-    this._notify(type, updatedFilm);
+  #adaptToClient = (film) => {
+    const userDetails = film['user_details'];
+    const filmInfo = film['film_info'];
+
+    const adaptedFilm = {
+      id: film.id,
+      filmInfo: {
+        ...filmInfo,
+        alternativeTitle: filmInfo['alternative_title'],
+        totalRating: filmInfo['total_rating'],
+        ageRating: filmInfo['age_rating'],
+        release: {
+          date: new Date(filmInfo['release']['date']),
+          releaseCountry: filmInfo['release']['release_country']
+        },
+      },
+      userDetails: {
+        ...userDetails,
+        alreadyWatched: userDetails['already_watched'],
+        watchingDate: userDetails['watching_date'] !== null ? new Date(userDetails['watching_date']) : null,
+      },
+      comments: film.comments
+    };
+
+    delete adaptedFilm.filmInfo['alternative_title'];
+    delete adaptedFilm.filmInfo['total_rating'];
+    delete adaptedFilm.filmInfo['age_rating'];
+    delete adaptedFilm.filmInfo.release['release_country'];
+    delete adaptedFilm.userDetails['already_watched'];
+    delete adaptedFilm.userDetails['watching_date'];
+
+    return adaptedFilm;
   }
 }

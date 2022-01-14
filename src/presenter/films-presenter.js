@@ -1,4 +1,4 @@
-import {ActionType, FilterType, NoTasksTextType, SortType, UpdateType} from '../const';
+import {ActionType, FilterType, NoTasksTextType, SortType, State, UpdateType} from '../const';
 import {getSortedFilms} from '../utils/sorts';
 import {filter} from '../utils/filters';
 import {remove, render, RenderPosition} from '../utils/render';
@@ -26,6 +26,7 @@ export default class FilmsPresenter {
   #filmsContainerComponent = new FilmsContainerView();
   #topFilmsComponent = new FilmsListView('Top rated');
   #viralFilmsComponent = new FilmsListView('Most commented');
+  #loadingComponent = new FilmsListView('Loading...');
 
   #detailsComponent = null;
   #noFilmsComponent = null;
@@ -36,11 +37,12 @@ export default class FilmsPresenter {
 
   #sortType = SortType.DEFAULT;
   #filterType = FilterType.ALL;
+  #isLoading = true;
 
   constructor(boardContainer, filmsModel, commentsModel, filterModel) {
     this.#boardContainer = boardContainer;
-    this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+    this.#filmsModel = filmsModel;
     this.#filterModel = filterModel;
   }
 
@@ -50,10 +52,6 @@ export default class FilmsPresenter {
     const filteredFilms = filter[this.#filterType](films);
 
     return this.#sortType === SortType.DEFAULT ? filteredFilms : getSortedFilms(filteredFilms, this.#sortType);
-  }
-
-  get comments() {
-    return this.#commentsModel.comments;
   }
 
   init = () => {
@@ -93,18 +91,50 @@ export default class FilmsPresenter {
     render(this.#boardComponent, this.#sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #resetFormState = () => {
+    this.#detailsComponent.updateData({
+      isDisabled: false,
+      deletingCommentId: null,
+    });
+  };
+
+  #setViewState = (state, update) => {
+    switch (state) {
+      case State.SAVING:
+        this.#detailsComponent.updateData({
+          isDisabled: true,
+        });
+        break;
+      case State.DELETING:
+        this.#detailsComponent.updateData({
+          deletingCommentId: update
+        });
+        break;
+    }
+  }
+
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case ActionType.UPDATE_FILM:
         this.#filmsModel.update(updateType, update);
         break;
       case ActionType.ADD_COMMENT:
-        this.#commentsModel.add(update);
-        this.#filmsModel.addComment(updateType, update);
+        this.#setViewState(State.SAVING);
+        try {
+          await this.#commentsModel.add(updateType, update);
+        } catch (err) {
+          const shakeElement = this.#detailsComponent.element.querySelector('.film-details__new-comment');
+          this.#detailsComponent.shake(shakeElement, this.#resetFormState);
+        }
         break;
       case ActionType.DELETE_COMMENT:
-        this.#commentsModel.delete(update);
-        this.#filmsModel.deleteComment(updateType, update);
+        this.#setViewState(State.DELETING, update);
+        try {
+          await this.#commentsModel.delete(updateType, update);
+        } catch (err) {
+          const shakeElement = document.getElementById(`${update}`);
+          this.#detailsComponent.shake(shakeElement, this.#resetFormState);
+        }
         break;
     }
   }
@@ -125,25 +155,33 @@ export default class FilmsPresenter {
         this.#clearBoard({resetRenderedCount: true, resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   }
 
-  #updateDetails = (updatedFilm) => {
+  #updateDetails = async (updatedFilm) => {
     if (this.#detailsComponent.filmData.id === updatedFilm.id) {
       this.#detailsComponent.updateData({
         film: updatedFilm,
-        comments: this.#commentsModel.getFilmComment(updatedFilm)
+        comments: await this.#commentsModel.getComments(updatedFilm.id),
+        isDisabled: false,
+        deletingCommentId: null
       });
     }
   }
 
-  #openDetails = (film) => {
+  #openDetails = async (film) => {
     if (this.#detailsComponent !== null) {
       this.#closeDetails();
     }
 
-    this.#detailsComponent = new FilmDetailsView(film, this.#commentsModel.getFilmComment(film));
+    const comments = await this.#commentsModel.getComments(film.id);
 
+    this.#detailsComponent = new FilmDetailsView(film, comments);
     bodyElement.classList.add('hide-overflow');
     render(bodyElement, this.#detailsComponent);
 
@@ -224,15 +262,15 @@ export default class FilmsPresenter {
 
   #addComment = () => {
     const film = this.#detailsComponent.filmData;
+    const filmId = film.id;
 
     const comment = {
-      id: this.comments[this.comments.length - 1].id + 1,
       comment: film.commentText,
       emotion: film.activeEmoji
     };
 
     if (comment.comment && comment.emotion) {
-      this.#handleViewAction(ActionType.ADD_COMMENT, UpdateType.PATCH, {film, comment});
+      this.#handleViewAction(ActionType.ADD_COMMENT, UpdateType.PATCH, {filmId, comment});
     }
   }
 
@@ -264,6 +302,10 @@ export default class FilmsPresenter {
   #renderNoFilms = () => {
     this.#noFilmsComponent = new FilmsListView(NoTasksTextType[this.#filterType]);
     render(this.#boardComponent, this.#noFilmsComponent);
+  }
+
+  #renderLoading = () => {
+    render(this.#boardComponent, this.#loadingComponent);
   }
 
   #handleMoreButtonClick = () => {
@@ -337,6 +379,7 @@ export default class FilmsPresenter {
     remove(this.#sortComponent);
     remove(this.#moreButtonComponent);
     remove(this.#filmsListComponent);
+    remove(this.#loadingComponent);
 
     if (this.#noFilmsComponent) {
       remove(this.#noFilmsComponent);
@@ -348,10 +391,16 @@ export default class FilmsPresenter {
   }
 
   #renderBoard = () => {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.films.length === 0) {
       this.#renderNoFilms();
       return;
     }
+
     this.#renderSort();
     this.#renderFullList();
   };
