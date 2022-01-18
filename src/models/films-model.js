@@ -56,7 +56,7 @@ export default class FilmsModel extends AbstractObservable {
   addComment = (type, filmId, comments) => {
     const updatedFilm = {
       ...this.films.find(({id}) => id === filmId),
-      comments: comments
+      comments: comments.map((item) => item.id)
     };
 
     this.#updateList(type, updatedFilm);
