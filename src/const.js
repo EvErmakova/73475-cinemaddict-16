@@ -1,4 +1,5 @@
 export const EXTRA_FILM_COUNT = 2;
+export const MAX_DESCRIPTION_LENGTH = 140;
 
 export const API_URL = 'https://16.ecmascript.pages.academy/cinemaddict';
 export const API_AUTHORIZATION = 'Basic gve8r7g387gvn';

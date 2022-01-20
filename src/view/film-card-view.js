@@ -1,3 +1,4 @@
+import {MAX_DESCRIPTION_LENGTH} from '../const';
 import {getYear, formatDuration} from '../utils/date';
 import SmartView from './smart-view';
 
@@ -11,8 +12,8 @@ const createFilmCardTemplate = ({filmInfo, userDetails, comments}) => {
   const favoriteClassName = userDetails.favorite ? CONTROL_ACTIVE_CLASS : '';
 
   const getShortDescription = () => {
-    if (description.length > 140) {
-      return `${description.slice(0, 140)}...`;
+    if (description.length > MAX_DESCRIPTION_LENGTH) {
+      return `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`;
     }
     return description;
   };
