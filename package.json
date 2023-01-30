@@ -1,6 +1,7 @@
 {
   "name": "cinemaddict",
   "version": "16.0.0",
+  "homepage": "https://evermakova.github.io/73475-cinemaddict-16",
   "private": true,
   "description": "Проект «Киноман» от HTML Academy",
   "scripts": {
